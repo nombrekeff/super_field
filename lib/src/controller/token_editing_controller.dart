@@ -9,7 +9,7 @@ import 'autocomplete_state.dart';
 ///
 /// It:
 /// - Keeps a parsed AST of the current text.
-/// - Sanitises cursor/selection positions so they cannot land inside
+/// - Sanitizes cursor/selection positions so they cannot land inside
 ///   [TokenBehavior.atomic] tokens.
 /// - Tracks autocomplete trigger state and notifies via [onAutocompleteChange].
 /// - Provides data-extraction helpers ([getMatchesByRule], [getPlainText]).

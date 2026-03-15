@@ -103,7 +103,7 @@ The raw string stored by the controller may contain hidden markup. Use the `Mark
 
 | Raw string | Rendered |
 |---|---|
-| `Hello <@123\|John Doe>!` | `Hello` **@John Doe** `!` |
+| `Hello <@123|John Doe>!` | `Hello` **@John Doe** `!` |
 
 When you need to persist the value, call `controller.text` to get the full raw string. To get a human-readable version, call `controller.getPlainText()`.
 
@@ -141,7 +141,7 @@ TokenizedTextFormField   (wraps TokenizedTextField as a FormField)
 | `RegexMatcher(pattern)` | Any regex-based token |
 | `StartsWithMatcher(trigger)` | `@mention`, `#hashtag`, etc. |
 | `SurroundedByMatcher(prefix, suffix)` | `**bold**`, `[link]`, etc. |
-| `MarkupMatcher(tagPrefix)` | Hidden-ID markup `<@123\|Label>` |
+| `MarkupMatcher(tagPrefix)` | Hidden-ID markup `<@123|Label>` |
 
 ---
 

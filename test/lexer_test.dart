@@ -152,6 +152,15 @@ void main() {
       expect(ast[0].groups[1], 'Bob');
       expect(ast[1].groups[1], 'Alice');
     });
+
+    test('toPlainText defaults to fullText for rules that do not override it', () {
+      // _MockBoldRule does not override toPlainText, so it falls back to fullText.
+      final lexer = TokenLexer(rules: [_MockBoldRule()]);
+      final ast = lexer.parse('This is **bold** text');
+      expect(ast.length, 1);
+      final rule = _MockBoldRule();
+      expect(rule.toPlainText(ast[0]), ast[0].fullText);
+    });
   });
 }
 
