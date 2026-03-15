@@ -14,6 +14,15 @@ import 'autocomplete_state.dart';
 /// - Tracks autocomplete trigger state and notifies via [onAutocompleteChange].
 /// - Provides data-extraction helpers ([getMatchesByRule], [getPlainText]).
 class TokenEditingController extends TextEditingController {
+  TokenEditingController({
+    required this.lexer,
+    super.text,
+    this.autocompleteTriggers = const [],
+    this.onAutocompleteChange,
+  }) {
+    _ast = lexer.parse(text);
+  }
+
   /// The lexer used to parse the raw text into a flat AST.
   final TokenLexer lexer;
 
@@ -25,15 +34,6 @@ class TokenEditingController extends TextEditingController {
 
   List<TokenMatch> _ast = const [];
   AutocompleteState _autocompleteState = AutocompleteState.inactive;
-
-  TokenEditingController({
-    required this.lexer,
-    super.text,
-    this.autocompleteTriggers = const [],
-    this.onAutocompleteChange,
-  }) {
-    _ast = lexer.parse(text ?? '');
-  }
 
   /// The current flat AST of the text.
   List<TokenMatch> get currentAst => _ast;

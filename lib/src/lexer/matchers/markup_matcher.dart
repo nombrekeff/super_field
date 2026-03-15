@@ -18,15 +18,15 @@ import '../token_matcher.dart';
 /// // Matches "<@123|John Doe>" and yields groups: ["123", "John Doe"]
 /// ```
 class MarkupMatcher extends TokenMatcher {
-  /// The character immediately after `<` that identifies the token type.
-  final String tagPrefix;
-
-  late final RegExp _pattern;
-
   MarkupMatcher({required this.tagPrefix})
       : _pattern = RegExp(
           '<${RegExp.escape(tagPrefix)}([^|>]+)\\|([^>]+)>',
         );
+
+  /// The character immediately after `<` that identifies the token type.
+  final String tagPrefix;
+
+  late final RegExp _pattern;
 
   @override
   Iterable<TokenMatch> findMatches(String text, String ruleId) sync* {

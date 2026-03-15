@@ -1,5 +1,13 @@
 /// Represents a single match produced by a [TokenMatcher].
 class TokenMatch {
+  const TokenMatch({
+    required this.start,
+    required this.end,
+    required this.fullText,
+    required this.groups,
+    required this.ruleId,
+  });
+
   /// The start index (inclusive) of the match within the source text.
   final int start;
 
@@ -15,14 +23,6 @@ class TokenMatch {
   /// The [id] of the [TokenRule] that produced this match.
   final String ruleId;
 
-  const TokenMatch({
-    required this.start,
-    required this.end,
-    required this.fullText,
-    required this.groups,
-    required this.ruleId,
-  });
-
   @override
   String toString() =>
       'TokenMatch(ruleId: $ruleId, start: $start, end: $end, fullText: $fullText)';
@@ -37,7 +37,9 @@ class TokenMatch {
         other.ruleId != ruleId) return false;
     if (groups.length != other.groups.length) return false;
     for (int i = 0; i < groups.length; i++) {
-      if (groups[i] != other.groups[i]) return false;
+      if (groups[i] != other.groups[i]) {
+        return false;
+      }
     }
     return true;
   }

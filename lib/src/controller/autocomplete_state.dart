@@ -4,6 +4,11 @@ import '../lexer/token_matcher.dart';
 /// Describes the text range that triggered an autocomplete session and the
 /// query extracted from it.
 class AutocompleteTrigger {
+  const AutocompleteTrigger({
+    required this.triggerId,
+    required this.activationMatcher,
+  });
+
   /// A unique identifier for this trigger (e.g., `'mention_search'`).
   final String triggerId;
 
@@ -11,17 +16,19 @@ class AutocompleteTrigger {
   ///
   /// Typically a [StartsWithMatcher] (e.g., `StartsWithMatcher('@')`).
   final TokenMatcher activationMatcher;
-
-  const AutocompleteTrigger({
-    required this.triggerId,
-    required this.activationMatcher,
-  });
 }
 
 /// Immutable snapshot of the autocomplete session state emitted by
 /// [TokenEditingController] whenever the user types text that activates a
 /// trigger.
 class AutocompleteState {
+  const AutocompleteState({
+    required this.isActive,
+    this.activeTriggerId,
+    this.query,
+    this.matchBounds,
+  });
+
   /// Whether an autocomplete session is currently active.
   final bool isActive;
 
@@ -36,13 +43,6 @@ class AutocompleteState {
   /// The exact bounds of the trigger text in the raw string, or `null` when
   /// [isActive] is `false`.
   final TokenMatch? matchBounds;
-
-  const AutocompleteState({
-    required this.isActive,
-    this.activeTriggerId,
-    this.query,
-    this.matchBounds,
-  });
 
   /// An inactive (closed) autocomplete state.
   static const inactive = AutocompleteState(isActive: false);

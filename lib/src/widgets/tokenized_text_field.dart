@@ -18,6 +18,17 @@ import '../lexer/token_rule.dart';
 /// [autocorrect] is always `false` and [enableSuggestions] is always `false`
 /// to prevent predictive text from corrupting hidden markup in the raw string.
 class TokenizedTextField extends StatefulWidget {
+  const TokenizedTextField({
+    super.key,
+    required this.controller,
+    this.readOnly = false,
+    this.decoration,
+    this.style,
+    this.maxLines = 1,
+    this.focusNode,
+    this.onChanged,
+  });
+
   /// The controller that holds the raw text and exposes token utilities.
   final TokenEditingController controller;
 
@@ -39,17 +50,6 @@ class TokenizedTextField extends StatefulWidget {
 
   /// Called with the raw string whenever the text changes.
   final ValueChanged<String>? onChanged;
-
-  const TokenizedTextField({
-    super.key,
-    required this.controller,
-    this.readOnly = false,
-    this.decoration,
-    this.style,
-    this.maxLines = 1,
-    this.focusNode,
-    this.onChanged,
-  });
 
   @override
   State<TokenizedTextField> createState() => _TokenizedTextFieldState();
@@ -109,12 +109,6 @@ class _TokenizedTextFieldState extends State<TokenizedTextField> {
 // ---------------------------------------------------------------------------
 
 class _ReadOnlyTokenField extends StatelessWidget {
-  final TokenEditingController controller;
-  final TextStyle style;
-  final InputDecoration? decoration;
-  final FocusNode? focusNode;
-  final int? maxLines;
-
   const _ReadOnlyTokenField({
     required this.controller,
     required this.style,
@@ -122,6 +116,12 @@ class _ReadOnlyTokenField extends StatelessWidget {
     this.focusNode,
     this.maxLines,
   });
+
+  final TokenEditingController controller;
+  final TextStyle style;
+  final InputDecoration? decoration;
+  final FocusNode? focusNode;
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
