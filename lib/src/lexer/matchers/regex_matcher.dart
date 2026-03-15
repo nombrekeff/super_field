@@ -6,10 +6,10 @@ import '../token_matcher.dart';
 /// Every capture group in the pattern is surfaced as an entry in
 /// [TokenMatch.groups].
 class RegexMatcher extends TokenMatcher {
+  const RegexMatcher(this.pattern);
+
   /// The regular expression used to locate tokens.
   final RegExp pattern;
-
-  const RegexMatcher(this.pattern);
 
   @override
   Iterable<TokenMatch> findMatches(String text, String ruleId) sync* {

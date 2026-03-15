@@ -26,8 +26,8 @@ class _ReadOnlyScreenState extends State<ReadOnlyScreen> {
   void initState() {
     super.initState();
     _readOnlyController = TokenEditingController(
-      lexer: TokenLexer(
-        rules: const [
+      lexer: const TokenLexer(
+        rules: [
           MentionRule(),
           HashtagRule(),
           UrlRule(),
@@ -106,8 +106,8 @@ class _CombinedFieldState extends State<_CombinedField> {
   void initState() {
     super.initState();
     _controller = TokenEditingController(
-      lexer: TokenLexer(
-        rules: const [
+      lexer: const TokenLexer(
+        rules: [
           MentionRule(),
           HashtagRule(),
           UrlRule(),

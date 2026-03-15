@@ -7,10 +7,10 @@ import 'token_rule.dart';
 /// claim a segment of text "wins" — later rules cannot overlap with already
 /// matched ranges.
 class TokenLexer {
+  const TokenLexer({required this.rules});
+
   /// The ordered list of rules used during parsing.
   final List<TokenRule> rules;
-
-  const TokenLexer({required this.rules});
 
   /// Parses [text] and returns a flat, non-overlapping, position-ordered list
   /// of [TokenMatch]es.
@@ -42,7 +42,8 @@ class TokenLexer {
 }
 
 class _Interval {
+  const _Interval(this.start, this.end);
+
   final int start;
   final int end;
-  const _Interval(this.start, this.end);
 }

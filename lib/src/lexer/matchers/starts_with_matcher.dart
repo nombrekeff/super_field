@@ -8,12 +8,12 @@ import '../token_matcher.dart';
 /// A "word" is defined as any run of non-whitespace characters that
 /// immediately follows the trigger without any separating space.
 class StartsWithMatcher extends TokenMatcher {
+  const StartsWithMatcher(this.trigger);
+
   /// The character (or short string) that introduces the token.
   final String trigger;
 
   static final _whitespace = RegExp(r'\s');
-
-  const StartsWithMatcher(this.trigger);
 
   @override
   Iterable<TokenMatch> findMatches(String text, String ruleId) sync* {

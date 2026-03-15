@@ -22,7 +22,7 @@ class _HashtagScreenState extends State<HashtagScreen> {
   void initState() {
     super.initState();
     _controller = TokenEditingController(
-      lexer: TokenLexer(rules: const [HashtagRule()]),
+      lexer: const TokenLexer(rules: [HashtagRule()]),
       text: 'Check out #flutter and #dart today!',
     );
   }

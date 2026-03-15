@@ -1,6 +1,5 @@
 import 'package:flutter/services.dart';
 
-import '../lexer/token_lexer.dart';
 import '../lexer/token_match.dart';
 import '../lexer/token_rule.dart';
 import 'token_input_formatter.dart';
@@ -14,11 +13,10 @@ import 'token_input_formatter.dart';
 /// This ensures a single backspace keypress always removes a whole token
 /// rather than exposing internal markup characters.
 class AtomicDeletionFormatter extends TokenInputFormatter {
-  final List<TokenRule> _rules;
+  AtomicDeletionFormatter({required super.lexer})
+      : _rules = lexer.rules;
 
-  AtomicDeletionFormatter({required TokenLexer lexer})
-      : _rules = lexer.rules,
-        super(lexer: lexer);
+  final List<TokenRule> _rules;
 
   @override
   TextEditingValue formatAst(

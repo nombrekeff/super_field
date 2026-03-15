@@ -10,10 +10,10 @@ import '../lexer/token_match.dart';
 /// logic needs to reason about token positions (e.g., blocking edits inside
 /// a token or transforming token syntax).
 abstract class TokenInputFormatter extends TextInputFormatter {
+  const TokenInputFormatter({required this.lexer});
+
   /// The lexer used to parse the incoming text before [formatAst] is called.
   final TokenLexer lexer;
-
-  const TokenInputFormatter({required this.lexer});
 
   @override
   TextEditingValue formatEditUpdate(

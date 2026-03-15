@@ -48,7 +48,7 @@ void main() {
 
     test('replaceMatch inserts replacement and positions cursor', () {
       controller.text = 'Hello @jo';
-      final match = TokenMatch(
+      const match = TokenMatch(
         start: 6,
         end: 9,
         fullText: '@jo',
@@ -63,7 +63,7 @@ void main() {
     group('cursor sanitization', () {
       test('cursor inside atomic token snaps forward when moving forward', () {
         // Text: "Hi <@1|John>!" — token "<@1|John>" spans [3, 12)
-        controller.value = TextEditingValue(
+        controller.value = const TextEditingValue(
           text: 'Hi <@1|John>!',
           selection: TextSelection.collapsed(offset: 5),
           // Cursor at position 5 is inside the token [3, 12)
@@ -76,7 +76,7 @@ void main() {
         // Simulate cursor was at position 13 (end of string), now moves to 7
         // (inside the token [3, 12)). The old offset (13) > new offset (7)
         // so it is a backward movement.
-        final oldValue = TextEditingValue(
+        const oldValue = TextEditingValue(
           text: 'Hi <@1|John>!',
           selection: TextSelection.collapsed(offset: 13),
         );
@@ -84,7 +84,7 @@ void main() {
         controller.value = oldValue;
 
         // Now set a new value where cursor moves backward into the token
-        controller.value = TextEditingValue(
+        controller.value = const TextEditingValue(
           text: 'Hi <@1|John>!',
           selection: TextSelection.collapsed(offset: 7),
         );
@@ -102,7 +102,7 @@ void main() {
         acController = TokenEditingController(
           lexer: TokenLexer(rules: [_MentionRule()]),
           autocompleteTriggers: [
-            AutocompleteTrigger(
+            const AutocompleteTrigger(
               triggerId: 'mention_search',
               activationMatcher: StartsWithMatcher('@'),
             ),
@@ -116,7 +116,7 @@ void main() {
       });
 
       test('emits active state when trigger is typed', () {
-        acController.value = TextEditingValue(
+        acController.value = const TextEditingValue(
           text: '@jo',
           selection: TextSelection.collapsed(offset: 3),
         );
@@ -126,11 +126,11 @@ void main() {
       });
 
       test('emits inactive state when trigger word disappears', () {
-        acController.value = TextEditingValue(
+        acController.value = const TextEditingValue(
           text: '@jo',
           selection: TextSelection.collapsed(offset: 3),
         );
-        acController.value = TextEditingValue(
+        acController.value = const TextEditingValue(
           text: '',
           selection: TextSelection.collapsed(offset: 0),
         );
@@ -138,14 +138,14 @@ void main() {
       });
 
       test('emits inactive state when selection is a non-collapsed range', () {
-        acController.value = TextEditingValue(
+        acController.value = const TextEditingValue(
           text: '@jo',
           selection: TextSelection.collapsed(offset: 3),
         );
         // Select all — range selection should deactivate autocomplete.
-        acController.value = TextEditingValue(
+        acController.value = const TextEditingValue(
           text: '@jo',
-          selection: const TextSelection(baseOffset: 0, extentOffset: 3),
+          selection: TextSelection(baseOffset: 0, extentOffset: 3),
         );
         expect(emitted.last.isActive, isFalse);
       });

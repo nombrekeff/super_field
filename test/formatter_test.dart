@@ -1,4 +1,4 @@
-import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:super_field/super_field.dart';
 
@@ -12,7 +12,7 @@ void main() {
       formatter = AtomicDeletionFormatter(lexer: lexer);
     });
 
-    TextEditingValue _apply(String oldText, String newText, int cursorOffset) {
+    TextEditingValue apply(String oldText, String newText, int cursorOffset) {
       return formatter.formatEditUpdate(
         TextEditingValue(
           text: oldText,
@@ -31,7 +31,7 @@ void main() {
       // User presses backspace from cursor position 12 (just after '>'),
       // deleting the '>' at index 11.
       const old = 'Hi <@1|John>!';
-      final result = _apply(old, 'Hi <@1|John!', 11);
+      final result = apply(old, 'Hi <@1|John!', 11);
 
       expect(result.text, 'Hi !');
       expect(result.selection.baseOffset, 3);
@@ -40,14 +40,14 @@ void main() {
     test('does not modify text for insertion', () {
       const old = 'Hello';
       const newText = 'Hello!';
-      final result = _apply(old, newText, 6);
+      final result = apply(old, newText, 6);
       expect(result.text, newText);
     });
 
     test('does not modify deletion outside of any token', () {
       const old = 'Hello World';
       const newText = 'Hello Worl';
-      final result = _apply(old, newText, 10);
+      final result = apply(old, newText, 10);
       expect(result.text, newText);
     });
 
@@ -59,10 +59,10 @@ void main() {
       const old = '<@1|John>';
       // Delete last char of token
       final result = transparentFormatter.formatEditUpdate(
-        TextEditingValue(
+        const TextEditingValue(
             text: old,
             selection: TextSelection.collapsed(offset: old.length)),
-        TextEditingValue(
+        const TextEditingValue(
             text: '<@1|John',
             selection: TextSelection.collapsed(offset: 8)),
       );
@@ -74,7 +74,7 @@ void main() {
       // "Hi <@1|John>!" — token "<@1|John>" spans [3, 12)
       // Simulate user deleted 'J' at index 7, mid-token.
       const old = 'Hi <@1|John>!';
-      final result = _apply(old, 'Hi <@1|ohn>!', 7);
+      final result = apply(old, 'Hi <@1|ohn>!', 7);
       // Full token should be removed since deletion is inside atomic token range
       expect(result.text, 'Hi !');
     });
