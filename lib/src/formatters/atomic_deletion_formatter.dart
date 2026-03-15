@@ -8,10 +8,11 @@ import 'token_input_formatter.dart';
 /// A mandatory formatter that enforces atomic deletion of tokens whose
 /// [TokenBehavior] is [TokenBehavior.atomic].
 ///
-/// When the user presses backspace at the position immediately after an atomic
-/// token (`newValue.text` is shorter than `oldValue.text` and the deletion
-/// point aligns with [TokenMatch.end]), this formatter removes the entire
-/// token from the string instead of just the last character.
+/// When any contiguous deletion overlaps with the range of an atomic token
+/// (i.e., one or more characters inside `[match.start, match.end)` are
+/// removed), this formatter strips the **entire** token from the string.
+/// This ensures a single backspace keypress always removes a whole token
+/// rather than exposing internal markup characters.
 class AtomicDeletionFormatter extends TokenInputFormatter {
   final List<TokenRule> _rules;
 
@@ -33,15 +34,12 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
     final atomicMatches =
         oldAst.where((m) => _isAtomic(m)).toList(growable: false);
 
+    // Compute the deletion point once — it only depends on the two text values.
+    final deletedAt = _findDeletionPoint(oldValue.text, newValue.text);
+    if (deletedAt == null) return newValue;
+
     for (final match in atomicMatches) {
-      // The deletion occurred at match.end when the resulting text matches
-      // what you'd get by removing exactly [match.end - 1] (the last char of
-      // the token was the deleted character) AND the rest of the string is
-      // intact around the token.
-      final deletedAt = _findDeletionPoint(oldValue.text, newValue.text);
-      if (deletedAt != null &&
-          deletedAt >= match.start &&
-          deletedAt < match.end) {
+      if (deletedAt >= match.start && deletedAt < match.end) {
         // Strip the entire token from the old text.
         final stripped =
             oldValue.text.substring(0, match.start) +

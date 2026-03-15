@@ -28,16 +28,21 @@ class TokenMatch {
       'TokenMatch(ruleId: $ruleId, start: $start, end: $end, fullText: $fullText)';
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TokenMatch &&
-          runtimeType == other.runtimeType &&
-          start == other.start &&
-          end == other.end &&
-          fullText == other.fullText &&
-          ruleId == other.ruleId;
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! TokenMatch) return false;
+    if (other.start != start ||
+        other.end != end ||
+        other.fullText != fullText ||
+        other.ruleId != ruleId) return false;
+    if (groups.length != other.groups.length) return false;
+    for (int i = 0; i < groups.length; i++) {
+      if (groups[i] != other.groups[i]) return false;
+    }
+    return true;
+  }
 
   @override
   int get hashCode =>
-      start.hashCode ^ end.hashCode ^ fullText.hashCode ^ ruleId.hashCode;
+      Object.hashAll([start, end, fullText, ruleId, ...groups]);
 }

@@ -49,7 +49,13 @@ class TokenEditingController extends TextEditingController {
     final sanitized = _sanitizeSelection(value.selection, newValue.selection, newAst);
     super.value = newValue.copyWith(selection: sanitized);
 
-    _updateAutocompleteState(newValue.text, sanitized.baseOffset);
+    // Only run autocomplete when the selection is collapsed (no range selected).
+    // Use extentOffset — the caret position in Flutter's selection model.
+    if (sanitized.isCollapsed) {
+      _updateAutocompleteState(newValue.text, sanitized.extentOffset);
+    } else {
+      _setAutocompleteState(AutocompleteState.inactive);
+    }
   }
 
   // ---------------------------------------------------------------------------

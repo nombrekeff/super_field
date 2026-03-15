@@ -136,6 +136,19 @@ void main() {
         );
         expect(emitted.last.isActive, isFalse);
       });
+
+      test('emits inactive state when selection is a non-collapsed range', () {
+        acController.value = TextEditingValue(
+          text: '@jo',
+          selection: TextSelection.collapsed(offset: 3),
+        );
+        // Select all — range selection should deactivate autocomplete.
+        acController.value = TextEditingValue(
+          text: '@jo',
+          selection: const TextSelection(baseOffset: 0, extentOffset: 3),
+        );
+        expect(emitted.last.isActive, isFalse);
+      });
     });
   });
 }

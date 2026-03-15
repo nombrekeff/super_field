@@ -3,7 +3,7 @@ import 'package:super_field/super_field.dart';
 
 void main() {
   group('TokenMatch', () {
-    test('equality', () {
+    test('equality with empty groups', () {
       const a = TokenMatch(
         start: 0,
         end: 5,
@@ -19,6 +19,42 @@ void main() {
         ruleId: 'test',
       );
       expect(a, equals(b));
+    });
+
+    test('equality considers groups', () {
+      const a = TokenMatch(
+        start: 0,
+        end: 5,
+        fullText: 'hello',
+        groups: ['alice'],
+        ruleId: 'test',
+      );
+      const b = TokenMatch(
+        start: 0,
+        end: 5,
+        fullText: 'hello',
+        groups: ['bob'],
+        ruleId: 'test',
+      );
+      expect(a, isNot(equals(b)));
+    });
+
+    test('hashCode differs when groups differ', () {
+      const a = TokenMatch(
+        start: 0,
+        end: 5,
+        fullText: 'hello',
+        groups: ['alice'],
+        ruleId: 'test',
+      );
+      const b = TokenMatch(
+        start: 0,
+        end: 5,
+        fullText: 'hello',
+        groups: ['bob'],
+        ruleId: 'test',
+      );
+      expect(a.hashCode, isNot(equals(b.hashCode)));
     });
   });
 
@@ -64,6 +100,19 @@ void main() {
       final matcher = StartsWithMatcher('@');
       final matches = matcher.findMatches('hello @ world', 'mention').toList();
       expect(matches, isEmpty);
+    });
+
+    test('stops on tab and other whitespace characters', () {
+      final matcher = StartsWithMatcher('@');
+      // Tab, carriage return, and form feed should all terminate the token.
+      expect(
+        matcher.findMatches('@alice\tbob', 'mention').first.fullText,
+        '@alice',
+      );
+      expect(
+        matcher.findMatches('@alice\rbob', 'mention').first.fullText,
+        '@alice',
+      );
     });
   });
 

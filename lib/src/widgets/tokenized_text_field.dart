@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../controller/autocomplete_state.dart';
 import '../controller/token_editing_controller.dart';
 import '../formatters/atomic_deletion_formatter.dart';
 import '../lexer/token_match.dart';
@@ -10,8 +9,10 @@ import '../lexer/token_rule.dart';
 ///
 /// Mirrors the API of Flutter's [TextField] and adds:
 /// - Atomic token cursor-guard via [TokenEditingController].
-/// - Autocomplete trigger management.
 /// - A [readOnly] mode that renders a non-editable, selectable rich-text view.
+///
+/// Autocomplete triggers and callbacks are configured directly on the
+/// [TokenEditingController], keeping the widget API lean.
 ///
 /// ### Mobile IME Protection
 /// [autocorrect] is always `false` and [enableSuggestions] is always `false`
@@ -39,12 +40,6 @@ class TokenizedTextField extends StatefulWidget {
   /// Called with the raw string whenever the text changes.
   final ValueChanged<String>? onChanged;
 
-  /// Autocomplete triggers evaluated by the controller on every keystroke.
-  final List<AutocompleteTrigger> autocompleteTriggers;
-
-  /// Called whenever the [AutocompleteState] changes.
-  final ValueChanged<AutocompleteState>? onAutocompleteChange;
-
   const TokenizedTextField({
     super.key,
     required this.controller,
@@ -54,8 +49,6 @@ class TokenizedTextField extends StatefulWidget {
     this.maxLines = 1,
     this.focusNode,
     this.onChanged,
-    this.autocompleteTriggers = const [],
-    this.onAutocompleteChange,
   });
 
   @override

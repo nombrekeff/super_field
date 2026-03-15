@@ -11,6 +11,8 @@ class StartsWithMatcher extends TokenMatcher {
   /// The character (or short string) that introduces the token.
   final String trigger;
 
+  static final _whitespace = RegExp(r'\s');
+
   const StartsWithMatcher(this.trigger);
 
   @override
@@ -19,7 +21,7 @@ class StartsWithMatcher extends TokenMatcher {
     while (i < text.length) {
       if (text.startsWith(trigger, i)) {
         int end = i + trigger.length;
-        while (end < text.length && text[end] != ' ' && text[end] != '\n') {
+        while (end < text.length && !_whitespace.hasMatch(text[end])) {
           end++;
         }
         if (end > i + trigger.length) {
