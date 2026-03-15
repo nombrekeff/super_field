@@ -48,7 +48,7 @@ void main() {
 
     test('replaceMatch inserts replacement and positions cursor', () {
       controller.text = 'Hello @jo';
-      final match = const TokenMatch(
+      const match = TokenMatch(
         start: 6,
         end: 9,
         fullText: '@jo',
@@ -76,7 +76,7 @@ void main() {
         // Simulate cursor was at position 13 (end of string), now moves to 7
         // (inside the token [3, 12)). The old offset (13) > new offset (7)
         // so it is a backward movement.
-        final oldValue = const TextEditingValue(
+        const oldValue = TextEditingValue(
           text: 'Hi <@1|John>!',
           selection: TextSelection.collapsed(offset: 13),
         );

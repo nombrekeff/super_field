@@ -26,7 +26,7 @@ class _FormFieldScreenState extends State<FormFieldScreen> {
   void initState() {
     super.initState();
     _controller = TokenEditingController(
-      lexer: TokenLexer(rules: const [MentionRule(), HashtagRule()]),
+      lexer: const TokenLexer(rules: [MentionRule(), HashtagRule()]),
     );
   }
 

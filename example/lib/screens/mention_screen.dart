@@ -37,9 +37,9 @@ class _MentionScreenState extends State<MentionScreen> {
   void initState() {
     super.initState();
     _controller = TokenEditingController(
-      lexer: TokenLexer(rules: const [MentionRule()]),
+      lexer: const TokenLexer(rules: [MentionRule()]),
       autocompleteTriggers: [
-        AutocompleteTrigger(
+        const AutocompleteTrigger(
           triggerId: 'mention_search',
           activationMatcher: StartsWithMatcher('@'),
         ),

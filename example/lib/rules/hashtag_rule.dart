@@ -10,7 +10,7 @@ class HashtagRule extends TokenRule {
   String get id => 'hashtag';
 
   @override
-  TokenMatcher get matcher => StartsWithMatcher('#');
+  TokenMatcher get matcher => const StartsWithMatcher('#');
 
   @override
   TokenBehavior get behavior => TokenBehavior.atomic;

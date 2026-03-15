@@ -24,7 +24,7 @@ class _FormattingScreenState extends State<FormattingScreen> {
   void initState() {
     super.initState();
     _controller = TokenEditingController(
-      lexer: TokenLexer(rules: const [BoldRule(), ItalicRule()]),
+      lexer: const TokenLexer(rules: [BoldRule(), ItalicRule()]),
       text: 'This is **bold** and _italic_ text.',
     );
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:super_field/super_field.dart';
 
@@ -82,7 +83,7 @@ void main() {
 
   group('StartsWithMatcher', () {
     test('matches trigger word', () {
-      final matcher = const StartsWithMatcher('@');
+      const matcher = StartsWithMatcher('@');
       final matches = matcher.findMatches('Hello @john today', 'mention').toList();
       expect(matches.length, 1);
       expect(matches[0].fullText, '@john');
@@ -90,20 +91,20 @@ void main() {
     });
 
     test('matches multiple triggers', () {
-      final matcher = const StartsWithMatcher('@');
+      const matcher = StartsWithMatcher('@');
       final matches =
           matcher.findMatches('@alice and @bob', 'mention').toList();
       expect(matches.length, 2);
     });
 
     test('does not match trigger without content', () {
-      final matcher = const StartsWithMatcher('@');
+      const matcher = StartsWithMatcher('@');
       final matches = matcher.findMatches('hello @ world', 'mention').toList();
       expect(matches, isEmpty);
     });
 
     test('stops on tab and other whitespace characters', () {
-      final matcher = const StartsWithMatcher('@');
+      const matcher = StartsWithMatcher('@');
       expect(
         matcher.findMatches('@alice\tbob', 'mention').first.fullText,
         '@alice',
@@ -117,8 +118,8 @@ void main() {
 
   group('SurroundedByMatcher', () {
     test('matches single token', () {
-      final matcher =
-          const SurroundedByMatcher(prefix: '**', suffix: '**');
+      const matcher =
+          SurroundedByMatcher(prefix: '**', suffix: '**');
       final matches =
           matcher.findMatches('This is **bold** text', 'bold').toList();
       expect(matches.length, 1);
@@ -127,16 +128,16 @@ void main() {
     });
 
     test('matches multiple tokens', () {
-      final matcher =
-          const SurroundedByMatcher(prefix: '[', suffix: ']');
+      const matcher =
+          SurroundedByMatcher(prefix: '[', suffix: ']');
       final matches =
           matcher.findMatches('[one] and [two]', 'bracket').toList();
       expect(matches.length, 2);
     });
 
     test('returns empty when no match', () {
-      final matcher =
-          const SurroundedByMatcher(prefix: '(', suffix: ')');
+      const matcher =
+          SurroundedByMatcher(prefix: '(', suffix: ')');
       expect(matcher.findMatches('no parens', 'p'), isEmpty);
     });
   });
@@ -155,7 +156,7 @@ void main() {
 
     test('handles multiple tokens', () {
       final matcher = MarkupMatcher(tagPrefix: '@');
-      final text = '<@1|Alice> and <@2|Bob>';
+      const text = '<@1|Alice> and <@2|Bob>';
       final matches = matcher.findMatches(text, 'mention').toList();
       expect(matches.length, 2);
       expect(matches[0].groups[1], 'Alice');
@@ -245,7 +246,7 @@ class _MockBoldRule extends TokenRule {
 
   @override
   TokenMatcher get matcher =>
-      SurroundedByMatcher(prefix: '**', suffix: '**');
+      const SurroundedByMatcher(prefix: '**', suffix: '**');
 
   @override
   TokenBehavior get behavior => TokenBehavior.transparent;

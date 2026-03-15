@@ -1,6 +1,5 @@
 import 'package:flutter/services.dart';
 
-import '../lexer/token_lexer.dart';
 import '../lexer/token_match.dart';
 import '../lexer/token_rule.dart';
 import 'token_input_formatter.dart';

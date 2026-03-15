@@ -23,7 +23,7 @@ class _UrlScreenState extends State<UrlScreen> {
   void initState() {
     super.initState();
     _controller = TokenEditingController(
-      lexer: TokenLexer(rules: const [UrlRule()]),
+      lexer: const TokenLexer(rules: [UrlRule()]),
       text: 'Visit https://flutter.dev or https://pub.dev for more info.',
     );
   }
