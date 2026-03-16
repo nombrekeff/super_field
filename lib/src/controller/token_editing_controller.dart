@@ -190,10 +190,11 @@ class TokenEditingController extends TextEditingController {
 
   @override
   set value(TextEditingValue newValue) {
+    final oldValue = value;
     final newAst = lexer.parse(newValue.text);
     _ast = newAst;
 
-    final sanitized = _sanitizeSelection(value.selection, newValue.selection, newAst);
+    final sanitized = _sanitizeSelection(oldValue, newValue, newAst);
     super.value = newValue.copyWith(selection: sanitized);
 
     // Only run autocomplete when the selection is collapsed (no range selected).
@@ -210,10 +211,14 @@ class TokenEditingController extends TextEditingController {
   // ---------------------------------------------------------------------------
 
   TextSelection _sanitizeSelection(
-    TextSelection oldSelection,
-    TextSelection newSelection,
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
     List<TokenMatch> ast,
   ) {
+    final oldSelection = oldValue.selection;
+    final newSelection = newValue.selection;
+    final textChanged = oldValue.text != newValue.text;
+
     final atomicTokens = ast.where(
       (m) => _ruleFor(m)?.behavior == TokenBehavior.atomic,
     );
@@ -221,11 +226,15 @@ class TokenEditingController extends TextEditingController {
     int base = _sanitizeOffset(
       oldOffset: oldSelection.baseOffset,
       newOffset: newSelection.baseOffset,
+      maxOffset: newValue.text.length,
+      textChanged: textChanged,
       atomicTokens: atomicTokens,
     );
     int extent = _sanitizeOffset(
       oldOffset: oldSelection.extentOffset,
       newOffset: newSelection.extentOffset,
+      maxOffset: newValue.text.length,
+      textChanged: textChanged,
       atomicTokens: atomicTokens,
     );
 
@@ -235,10 +244,22 @@ class TokenEditingController extends TextEditingController {
   int _sanitizeOffset({
     required int oldOffset,
     required int newOffset,
+    required int maxOffset,
+    required bool textChanged,
     required Iterable<TokenMatch> atomicTokens,
   }) {
+    if (newOffset < 0) {
+      return oldOffset.clamp(0, maxOffset);
+    }
+
     for (final token in atomicTokens) {
       if (newOffset > token.start && newOffset < token.end) {
+        if (textChanged) {
+          final distanceToStart = (oldOffset - token.start).abs();
+          final distanceToEnd = (oldOffset - token.end).abs();
+          return distanceToStart <= distanceToEnd ? token.start : token.end;
+        }
+
         // Determine direction: if moving forward, snap to end; else snap to start.
         if (newOffset >= oldOffset) {
           return token.end;
@@ -247,7 +268,7 @@ class TokenEditingController extends TextEditingController {
         }
       }
     }
-    return newOffset;
+    return newOffset.clamp(0, maxOffset);
   }
 
   TokenRule? _ruleFor(TokenMatch match) {

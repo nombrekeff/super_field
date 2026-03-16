@@ -113,6 +113,37 @@ void main() {
         // Expect cursor snapped to start of token (3)
         expect(controller.selection.baseOffset, 3);
       });
+
+      test('text replacement keeps cursor near previous side of token', () {
+        // Simulate a delete + undo cycle.
+        controller.value = const TextEditingValue(
+          text: 'Hi !',
+          selection: TextSelection.collapsed(offset: 3),
+        );
+
+        controller.value = const TextEditingValue(
+          text: 'Hi <@1|John>!',
+          selection: TextSelection.collapsed(offset: 7),
+        );
+
+        // Cursor offset 7 is inside token [3, 12), but after history restore
+        // it should stay near the previous side (start), not jump to token end.
+        expect(controller.selection.baseOffset, 3);
+      });
+
+      test('invalid selection is clamped to a valid offset', () {
+        controller.value = const TextEditingValue(
+          text: 'Hi <@1|John>!',
+          selection: TextSelection.collapsed(offset: 12),
+        );
+
+        controller.value = const TextEditingValue(
+          text: 'Hi <@1|John>!',
+          selection: TextSelection.collapsed(offset: -1),
+        );
+
+        expect(controller.selection.baseOffset, 12);
+      });
     });
 
     group('autocomplete', () {
