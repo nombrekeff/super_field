@@ -102,7 +102,7 @@ class _HashtagScreenState extends State<HashtagScreen> {
                     ruleId: 'hashtag',
                   ),
                 ],
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: 'Example: #flutter',
                   labelText: 'Primary hashtag',
@@ -127,7 +127,7 @@ class _HashtagScreenState extends State<HashtagScreen> {
                     ruleId: 'hashtag',
                   ),
                 ],
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: '#flutter #dart #mobile',
                   labelText: 'Allowed tags',

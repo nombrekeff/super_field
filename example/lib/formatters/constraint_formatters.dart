@@ -35,6 +35,7 @@ class HashtagListOnlyFormatter extends TokenInputFormatter {
   });
 
   final String ruleId;
+  static final RegExp _hashtagTokenPattern = RegExp(r'^#[A-Za-z0-9_]+$');
 
   @override
   TextEditingValue formatAst(
@@ -46,8 +47,7 @@ class HashtagListOnlyFormatter extends TokenInputFormatter {
     if (text.isEmpty) return newValue;
 
     final parts = text.split(RegExp(r'\s+'));
-    final tokenPattern = RegExp(r'^#[A-Za-z0-9_]+$');
-    final allValid = parts.every(tokenPattern.hasMatch);
+    final allValid = parts.every(_hashtagTokenPattern.hasMatch);
     if (!allValid) return oldValue;
 
     final hashtags = ast.where((m) => m.ruleId == ruleId).length;

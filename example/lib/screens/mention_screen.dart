@@ -171,7 +171,7 @@ class _MentionScreenState extends State<MentionScreen> {
                     ruleId: 'mention',
                   ),
                 ],
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: 'Type @ and choose one user…',
                   labelText: 'Assignee',
