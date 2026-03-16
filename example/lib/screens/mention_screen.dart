@@ -31,7 +31,9 @@ class MentionScreen extends StatefulWidget {
 
 class _MentionScreenState extends State<MentionScreen> {
   late final TokenEditingController _controller;
+  late final TokenEditingController _singleController;
   AutocompleteState _autocomplete = AutocompleteState.inactive;
+  AutocompleteState _singleAutocomplete = AutocompleteState.inactive;
 
   @override
   void initState() {
@@ -48,11 +50,24 @@ class _MentionScreenState extends State<MentionScreen> {
         setState(() => _autocomplete = state);
       },
     );
+    _singleController = TokenEditingController(
+      lexer: const TokenLexer(rules: [MentionRule()]),
+      autocompleteTriggers: [
+        const AutocompleteTrigger(
+          triggerId: 'mention_search_single',
+          activationMatcher: StartsWithMatcher('@'),
+        ),
+      ],
+      onAutocompleteChange: (state) {
+        setState(() => _singleAutocomplete = state);
+      },
+    );
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _singleController.dispose();
     super.dispose();
   }
 
@@ -64,6 +79,28 @@ class _MentionScreenState extends State<MentionScreen> {
         .toList();
   }
 
+  List<Map<String, String>> get _singleSuggestions {
+    if (!_singleAutocomplete.isActive) return [];
+    final query = (_singleAutocomplete.query ?? '').toLowerCase();
+    return _users
+        .where((u) => u['name']!.toLowerCase().contains(query))
+        .toList();
+  }
+
+  String? get _singleMentionError {
+    if (_singleController.text.trim().isEmpty) return null;
+
+    final mentions = _singleController.getMatchesByRule('mention');
+    if (mentions.length != 1) return 'Exactly one mention is allowed.';
+
+    final onlyMention = '@${mentions.first.groups[1]}';
+    if (_singleController.getPlainText().trim() != onlyMention) {
+      return 'Only a mention token is allowed (no extra text).';
+    }
+
+    return null;
+  }
+
   void _insertMention(Map<String, String> user) {
     final bounds = _autocomplete.matchBounds;
     if (bounds == null) return;
@@ -71,58 +108,99 @@ class _MentionScreenState extends State<MentionScreen> {
     setState(() => _autocomplete = AutocompleteState.inactive);
   }
 
+  void _insertSingleMention(Map<String, String> user) {
+    final bounds = _singleAutocomplete.matchBounds;
+    if (bounds == null) return;
+    _singleController.replaceMatch(bounds, '<@${user['id']}|${user['name']}>');
+    setState(() => _singleAutocomplete = AutocompleteState.inactive);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SectionHeader(
-              title: 'Mention Tokens',
-              description:
-                  'Type @ followed by a name to trigger autocomplete. '
-                  'Mentions use the hidden markup syntax <@id|Label> '
-                  'and render as chips. A single backspace deletes the '
-                  'entire chip (atomic deletion).',
-            ),
-            const SizedBox(height: 12),
-            TokenizedTextField(
-              controller: _controller,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Type @ to mention someone…',
-                labelText: 'Message',
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SectionHeader(
+                title: 'Mention Tokens',
+                description:
+                    'Type @ followed by a name to trigger autocomplete. '
+                    'Mentions use the hidden markup syntax <@id|Label> '
+                    'and render as chips. A single backspace deletes the '
+                    'entire chip (atomic deletion).',
               ),
-              onChanged: (_) => setState(() {}),
-            ),
-            if (_autocomplete.isActive && _suggestions.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              _SuggestionList(
-                suggestions: _suggestions,
-                onSelect: _insertMention,
+              const SizedBox(height: 12),
+              TokenizedTextField(
+                controller: _controller,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Type @ to mention someone…',
+                  labelText: 'Message',
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+              if (_autocomplete.isActive && _suggestions.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                _SuggestionList(
+                  suggestions: _suggestions,
+                  onSelect: _insertMention,
+                ),
+              ],
+              const SizedBox(height: 16),
+              OutputCard(
+                label: 'Raw text (controller.text)',
+                value: _controller.text,
+              ),
+              const SizedBox(height: 8),
+              OutputCard(
+                label: 'Plain text (controller.getPlainText())',
+                value: _controller.getPlainText(),
+              ),
+              const SizedBox(height: 8),
+              OutputCard(
+                label: 'Parsed mentions',
+                value: _controller
+                    .getMatchesByRule('mention')
+                    .map((m) => '${m.groups[1]} (id=${m.groups[0]})')
+                    .join(', '),
+              ),
+              const SizedBox(height: 24),
+              const SectionHeader(
+                title: 'Single Mention Field',
+                description:
+                    'This field accepts only one mention token. Try typing @ '
+                    'and selecting a user. Adding regular text or multiple '
+                    'mentions shows a validation error.',
+              ),
+              const SizedBox(height: 12),
+              TokenizedTextFormField(
+                controller: _singleController,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: 'Type @ and choose one user…',
+                  labelText: 'Assignee',
+                  errorText: _singleMentionError,
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+              if (_singleAutocomplete.isActive &&
+                  _singleSuggestions.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                _SuggestionList(
+                  suggestions: _singleSuggestions,
+                  onSelect: _insertSingleMention,
+                ),
+              ],
+              const SizedBox(height: 8),
+              OutputCard(
+                label: 'Single mention plain text',
+                value: _singleController.getPlainText(),
               ),
             ],
-            const SizedBox(height: 16),
-            OutputCard(
-              label: 'Raw text (controller.text)',
-              value: _controller.text,
-            ),
-            const SizedBox(height: 8),
-            OutputCard(
-              label: 'Plain text (controller.getPlainText())',
-              value: _controller.getPlainText(),
-            ),
-            const SizedBox(height: 8),
-            OutputCard(
-              label: 'Parsed mentions',
-              value: _controller
-                  .getMatchesByRule('mention')
-                  .map((m) => '${m.groups[1]} (id=${m.groups[0]})')
-                  .join(', '),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -145,6 +145,16 @@ TokenizedTextFormField   (wraps TokenizedTextField as a FormField)
 
 ---
 
+## Example app scenarios
+
+The `example/` app includes ready-to-run demos for common constraints:
+
+- Mention autocomplete with markup tokens
+- Single-value token fields (single mention, single hashtag)
+- Token-list-only fields (hashtags separated by spaces only)
+
+---
+
 ## License
 
 MIT
