@@ -8,7 +8,7 @@ void main() {
 
     setUp(() {
       controller = TokenEditingController(
-        lexer: TokenLexer(rules: const [_MentionRule()]),
+        lexer: const TokenLexer(rules: [_MentionRule()]),
         text: '<@1|Alice>',
       );
     });
@@ -37,7 +37,7 @@ void main() {
       expect(builtSpan.toPlainText(), '@Alice');
       final tokenSpan = _findTextSpanByText(builtSpan, '@Alice');
       expect(tokenSpan, isNotNull);
-      expect(tokenSpan.style?.color, Colors.red);
+      expect(tokenSpan!.style?.color, Colors.red);
     });
 
     testWidgets('renders mention label in read-only mode', (tester) async {
@@ -59,7 +59,7 @@ void main() {
       expect(span.toPlainText(), '@Alice');
       final tokenSpan = _findTextSpanByText(span, '@Alice');
       expect(tokenSpan, isNotNull);
-      expect(tokenSpan.style?.color, Colors.blue);
+      expect(tokenSpan!.style?.color, Colors.blue);
     });
 
     testWidgets('preserves composing range styling in editable mode', (
