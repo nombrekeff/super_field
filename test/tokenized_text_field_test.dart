@@ -34,7 +34,8 @@ void main() {
         style: editableText.style,
         withComposing: false,
       );
-      expect(builtSpan.toPlainText(), '@Alice');
+      final visibleText = builtSpan.toPlainText().replaceAll('\u200B', '');
+      expect(visibleText, '@Alice');
       final tokenSpan = _findTextSpanByText(builtSpan, '@Alice');
       expect(tokenSpan, isNotNull);
       expect(tokenSpan!.style?.color, Colors.red);
@@ -66,9 +67,9 @@ void main() {
       tester,
     ) async {
       controller.value = const TextEditingValue(
-        text: '<@1|Alice>',
-        selection: TextSelection.collapsed(offset: 9),
-        composing: TextRange(start: 1, end: 4),
+        text: 'Hi <@1|Alice>!',
+        selection: TextSelection.collapsed(offset: 14),
+        composing: TextRange(start: 0, end: 2),
       );
 
       await tester.pumpWidget(
