@@ -20,8 +20,7 @@ const _users = [
 ///
 /// - Type `@` followed by a name fragment to trigger the suggestion overlay.
 /// - Tap a suggestion to insert the fully-formed `<@id|Name>` markup token.
-/// - The editor stores/displays raw markup while typing.
-/// - The read-only preview below renders mentions as chips.
+/// - The field shows a chip for each mention.
 /// - "Plain text" output strips hidden markup to a human-readable string.
 class MentionScreen extends StatefulWidget {
   const MentionScreen({super.key});
@@ -84,10 +83,9 @@ class _MentionScreenState extends State<MentionScreen> {
               title: 'Mention Tokens',
               description:
                   'Type @ followed by a name to trigger autocomplete. '
-                  'Mentions use the hidden markup syntax <@id|Label>. '
-                  'The editor shows raw markup while typing, and the '
-                  'preview below renders mention chips. A single '
-                  'backspace deletes the entire mention token.',
+                  'Mentions use the hidden markup syntax <@id|Label> '
+                  'and render as chips. A single backspace deletes the '
+                  'entire chip (atomic deletion).',
             ),
             const SizedBox(height: 12),
             TokenizedTextField(
@@ -98,16 +96,6 @@ class _MentionScreenState extends State<MentionScreen> {
                 labelText: 'Message',
               ),
               onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: 8),
-            TokenizedTextField(
-              controller: _controller,
-              readOnly: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Rendered preview',
-              ),
-              maxLines: 3,
             ),
             if (_autocomplete.isActive && _suggestions.isNotEmpty) ...[
               const SizedBox(height: 4),

@@ -42,6 +42,54 @@ class TokenEditingController extends TextEditingController {
   AutocompleteState get autocompleteState => _autocompleteState;
 
   @override
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
+    final effectiveStyle = style ?? const TextStyle();
+
+    if (_ast.isEmpty) {
+      return TextSpan(style: effectiveStyle, text: text);
+    }
+
+    final spans = <InlineSpan>[];
+    int cursor = 0;
+
+    for (final match in _ast) {
+      if (match.start > cursor) {
+        spans.add(
+          TextSpan(
+            text: text.substring(cursor, match.start),
+            style: effectiveStyle,
+          ),
+        );
+      }
+
+      final rule = _ruleFor(match);
+      if (rule != null) {
+        spans.add(
+          rule.buildSpan(
+            context: context,
+            match: match,
+            defaultStyle: effectiveStyle,
+            isReadOnly: false,
+          ),
+        );
+      } else {
+        spans.add(TextSpan(text: match.fullText, style: effectiveStyle));
+      }
+      cursor = match.end;
+    }
+
+    if (cursor < text.length) {
+      spans.add(TextSpan(text: text.substring(cursor), style: effectiveStyle));
+    }
+
+    return TextSpan(style: effectiveStyle, children: spans);
+  }
+
+  @override
   set value(TextEditingValue newValue) {
     final newAst = lexer.parse(newValue.text);
     _ast = newAst;

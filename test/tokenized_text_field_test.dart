@@ -17,7 +17,7 @@ void main() {
       controller.dispose();
     });
 
-    testWidgets('shows raw markup in editable mode', (tester) async {
+    testWidgets('renders mention label in editable mode', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Material(
@@ -27,7 +27,8 @@ void main() {
       );
 
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.text('<@1|Alice>'), findsOneWidget);
+      expect(find.text('@Alice'), findsOneWidget);
+      expect(find.text('<@1|Alice>'), findsNothing);
     });
 
     testWidgets('renders mention label in read-only mode', (tester) async {
@@ -68,9 +69,6 @@ class _MentionRule extends TokenRule {
     required TextStyle defaultStyle,
     required bool isReadOnly,
   }) {
-    if (isReadOnly) {
-      return TextSpan(text: '@${match.groups[1]}', style: defaultStyle);
-    }
-    return WidgetSpan(child: Text('@${match.groups[1]}'));
+    return TextSpan(text: '@${match.groups[1]}', style: defaultStyle);
   }
 }

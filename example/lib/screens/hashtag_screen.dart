@@ -6,8 +6,7 @@ import '../widgets/demo_widgets.dart';
 
 /// Demonstrates [StartsWithMatcher] with hashtag tokens:
 ///
-/// - The editor keeps hashtags as plain text while typing.
-/// - The read-only preview below highlights hashtags in purple.
+/// - Words starting with `#` are highlighted as purple chips.
 /// - Atomic deletion removes the entire chip with one backspace.
 class HashtagScreen extends StatefulWidget {
   const HashtagScreen({super.key});
@@ -46,9 +45,8 @@ class _HashtagScreenState extends State<HashtagScreen> {
               title: 'Hashtag Tokens',
               description:
                   'Words beginning with # are matched by StartsWithMatcher '
-                  'while editing as raw text. The preview below highlights '
-                  'hashtags in purple. Press backspace once on a hashtag '
-                  'to delete the whole token.',
+                  'and rendered as purple badge chips. '
+                  'Press backspace once on a hashtag to delete the whole token.',
             ),
             const SizedBox(height: 12),
             TokenizedTextField(
@@ -60,16 +58,6 @@ class _HashtagScreenState extends State<HashtagScreen> {
               ),
               maxLines: 3,
               onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: 8),
-            TokenizedTextField(
-              controller: _controller,
-              readOnly: true,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Rendered preview',
-              ),
-              maxLines: 3,
             ),
             const SizedBox(height: 16),
             OutputCard(
