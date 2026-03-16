@@ -83,6 +83,9 @@ final controller = TokenEditingController(
 TokenizedTextField(
   controller: controller,
   decoration: const InputDecoration(hintText: 'Type @ to mention someone…'),
+  inputFormatters: const [
+    // Add custom constraints, e.g. single-token-only fields.
+  ],
 )
 ```
 
@@ -126,6 +129,7 @@ TokenEditingController
 
 TokenizedTextField
     ├── AtomicDeletionFormatter   (mandatory)
+    ├── inputFormatters           (optional custom constraints)
     ├── autocorrect: false
     └── enableSuggestions: false
 

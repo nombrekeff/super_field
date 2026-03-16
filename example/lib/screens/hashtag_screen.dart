@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:super_field/super_field.dart';
 
+import '../formatters/constraint_formatters.dart';
 import '../rules/hashtag_rule.dart';
 import '../widgets/demo_widgets.dart';
 
@@ -43,36 +44,6 @@ class _HashtagScreenState extends State<HashtagScreen> {
     _singleHashtagController.dispose();
     _hashtagListController.dispose();
     super.dispose();
-  }
-
-  String? get _singleHashtagError {
-    if (_singleHashtagController.text.trim().isEmpty) return null;
-
-    final hashtags = _singleHashtagController.getMatchesByRule('hashtag');
-    if (hashtags.length != 1) return 'Exactly one hashtag is allowed.';
-    if (_singleHashtagController.text.trim() != hashtags.first.fullText) {
-      return 'Only a hashtag token is allowed (no extra text).';
-    }
-    return null;
-  }
-
-  String? get _hashtagListError {
-    final text = _hashtagListController.text.trim();
-    if (text.isEmpty) return null;
-
-    final parts = text.split(RegExp(r'\s+'));
-    final tokenPattern = RegExp(r'^#[A-Za-z0-9_]+$');
-    final allValid = parts.every(tokenPattern.hasMatch);
-    if (!allValid) {
-      return 'Only hashtags separated by spaces are allowed.';
-    }
-
-    final hashtags = _hashtagListController.getMatchesByRule('hashtag');
-    if (hashtags.length != parts.length) {
-      return 'Only hashtags separated by spaces are allowed.';
-    }
-
-    return null;
   }
 
   @override
@@ -119,17 +90,22 @@ class _HashtagScreenState extends State<HashtagScreen> {
               const SectionHeader(
                 title: 'Single Hashtag Field',
                 description:
-                    'This field demonstrates single-value validation: only one '
-                    'hashtag token is accepted.',
+                    'This field demonstrates single-value constraints: only one '
+                    'hashtag token is accepted and extra typing is blocked.',
               ),
               const SizedBox(height: 12),
               TokenizedTextFormField(
                 controller: _singleHashtagController,
+                inputFormatters: const [
+                  SingleTokenOnlyFormatter(
+                    lexer: TokenLexer(rules: [HashtagRule()]),
+                    ruleId: 'hashtag',
+                  ),
+                ],
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: 'Example: #flutter',
                   labelText: 'Primary hashtag',
-                  errorText: _singleHashtagError,
                 ),
                 onChanged: (_) => setState(() {}),
               ),
@@ -138,17 +114,23 @@ class _HashtagScreenState extends State<HashtagScreen> {
                 title: 'Hashtag List-Only Field',
                 description:
                     'This field accepts only a list of hashtags separated by '
-                    'spaces (for example: #flutter #dart #ui).',
+                    'spaces (for example: #flutter #dart #ui). Invalid typing '
+                    'is blocked by an input formatter.',
               ),
               const SizedBox(height: 12),
               TokenizedTextFormField(
                 controller: _hashtagListController,
                 maxLines: 2,
+                inputFormatters: const [
+                  HashtagListOnlyFormatter(
+                    lexer: TokenLexer(rules: [HashtagRule()]),
+                    ruleId: 'hashtag',
+                  ),
+                ],
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: '#flutter #dart #mobile',
                   labelText: 'Allowed tags',
-                  errorText: _hashtagListError,
                 ),
                 onChanged: (_) => setState(() {}),
               ),

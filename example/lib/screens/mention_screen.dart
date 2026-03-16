@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:super_field/super_field.dart';
 
+import '../formatters/constraint_formatters.dart';
 import '../rules/mention_rule.dart';
 import '../widgets/demo_widgets.dart';
 
@@ -87,20 +88,6 @@ class _MentionScreenState extends State<MentionScreen> {
         .toList();
   }
 
-  String? get _singleMentionError {
-    if (_singleController.text.trim().isEmpty) return null;
-
-    final mentions = _singleController.getMatchesByRule('mention');
-    if (mentions.length != 1) return 'Exactly one mention is allowed.';
-
-    final onlyMention = '@${mentions.first.groups[1]}';
-    if (_singleController.getPlainText().trim() != onlyMention) {
-      return 'Only a mention token is allowed (no extra text).';
-    }
-
-    return null;
-  }
-
   void _insertMention(Map<String, String> user) {
     final bounds = _autocomplete.matchBounds;
     if (bounds == null) return;
@@ -173,16 +160,21 @@ class _MentionScreenState extends State<MentionScreen> {
                 description:
                     'This field accepts only one mention token. Try typing @ '
                     'and selecting a user. Adding regular text or multiple '
-                    'mentions shows a validation error.',
+                    'mentions is blocked by an input formatter.',
               ),
               const SizedBox(height: 12),
               TokenizedTextFormField(
                 controller: _singleController,
+                inputFormatters: const [
+                  SingleTokenOnlyFormatter(
+                    lexer: TokenLexer(rules: [MentionRule()]),
+                    ruleId: 'mention',
+                  ),
+                ],
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
                   hintText: 'Type @ and choose one user…',
                   labelText: 'Assignee',
-                  errorText: _singleMentionError,
                 ),
                 onChanged: (_) => setState(() {}),
               ),

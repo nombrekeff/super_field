@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../controller/token_editing_controller.dart';
 import '../formatters/atomic_deletion_formatter.dart';
@@ -27,6 +28,7 @@ class TokenizedTextField extends StatefulWidget {
     this.maxLines = 1,
     this.focusNode,
     this.onChanged,
+    this.inputFormatters = const [],
   });
 
   /// The controller that holds the raw text and exposes token utilities.
@@ -50,6 +52,12 @@ class TokenizedTextField extends StatefulWidget {
 
   /// Called with the raw string whenever the text changes.
   final ValueChanged<String>? onChanged;
+
+  /// Additional input formatters applied after atomic deletion handling.
+  ///
+  /// This enables declarative constraints (for example: single-token-only
+  /// fields) without relying on form error messages.
+  final List<TextInputFormatter> inputFormatters;
 
   @override
   State<TokenizedTextField> createState() => _TokenizedTextFieldState();
@@ -99,7 +107,7 @@ class _TokenizedTextFieldState extends State<TokenizedTextField> {
       autocorrect: false,
       enableSuggestions: false,
       onChanged: widget.onChanged,
-      inputFormatters: [_atomicFormatter],
+      inputFormatters: [_atomicFormatter, ...widget.inputFormatters],
     );
   }
 }
