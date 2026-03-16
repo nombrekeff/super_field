@@ -76,7 +76,7 @@ void main() {
 
     test('supports custom in-progress regex for other token types', () {
       final customFormatter = SingleTokenOnlyFormatter(
-        lexer: TokenLexer(rules: [_BracketRule()]),
+        lexer: const TokenLexer(rules: [_BracketRule()]),
         ruleId: 'bracket',
         inProgressInputRegex: RegExp(r'^\[[^\s\]]*$'),
       );
