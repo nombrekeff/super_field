@@ -50,16 +50,6 @@ class TokenEditingController extends TextEditingController {
     final effectiveStyle = style ?? const TextStyle();
     final textValue = value;
 
-    if (withComposing &&
-        textValue.isComposingRangeValid &&
-        !textValue.composing.isCollapsed) {
-      return super.buildTextSpan(
-        context: context,
-        style: effectiveStyle,
-        withComposing: true,
-      );
-    }
-
     if (_ast.isEmpty) {
       return TextSpan(style: effectiveStyle, text: text);
     }
@@ -123,7 +113,18 @@ class TokenEditingController extends TextEditingController {
       spans.add(TextSpan(text: text.substring(cursor), style: effectiveStyle));
     }
 
-    return TextSpan(style: effectiveStyle, children: spans);
+    List<InlineSpan> finalSpans = spans;
+    if (withComposing &&
+        textValue.isComposingRangeValid &&
+        !textValue.composing.isCollapsed) {
+      finalSpans = _applyComposingToSpans(
+        spans,
+        textValue.composing,
+        effectiveStyle,
+      );
+    }
+
+    return TextSpan(style: effectiveStyle, children: finalSpans);
   }
 
   @override
