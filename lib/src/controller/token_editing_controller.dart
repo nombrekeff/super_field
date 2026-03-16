@@ -79,14 +79,40 @@ class TokenEditingController extends TextEditingController {
 
       final rule = _ruleFor(match);
       if (rule != null) {
-        spans.add(
-          rule.buildSpan(
-            context: context,
-            match: match,
-            defaultStyle: effectiveStyle,
-            isReadOnly: false,
-          ),
+        final InlineSpan tokenSpan = rule.buildSpan(
+          context: context,
+          match: match,
+          defaultStyle: effectiveStyle,
+          isReadOnly: false,
         );
+
+        // Ensure the rendered span contributes the same plain-text length as
+        // the underlying raw token text. This keeps selection/caret offsets,
+        // which are computed against `toPlainText()`, in sync with the raw
+        // `match.start`/`match.end` offsets used by the controller.
+        final int renderedLength = tokenSpan.toPlainText().length;
+        final int rawLength = match.fullText.length;
+
+        if (renderedLength == rawLength) {
+          spans.add(tokenSpan);
+        } else if (renderedLength < rawLength) {
+          // Pad with zero-width characters so the span's plain-text length
+          // matches the raw token length, without changing visible output.
+          final int padCount = rawLength - renderedLength;
+          final String padding = '\u200B' * padCount;
+          spans.add(
+            TextSpan(
+              children: <InlineSpan>[
+                tokenSpan,
+                TextSpan(text: padding, style: effectiveStyle),
+              ],
+            ),
+          );
+        } else {
+          // If the rendered text is longer than the raw token, fall back to
+          // rendering the raw token text to keep lengths consistent.
+          spans.add(TextSpan(text: match.fullText, style: effectiveStyle));
+        }
       } else {
         spans.add(TextSpan(text: match.fullText, style: effectiveStyle));
       }
