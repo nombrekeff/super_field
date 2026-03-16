@@ -29,6 +29,15 @@ void main() {
       expect(find.byType(TextField), findsOneWidget);
       expect(find.text('@Alice'), findsOneWidget);
       expect(find.text('<@1|Alice>'), findsNothing);
+
+      final editableText = tester.widget<EditableText>(find.byType(EditableText));
+      final builtSpan = editableText.controller.buildTextSpan(
+        context: tester.element(find.byType(EditableText)),
+        style: editableText.style,
+        withComposing: false,
+      );
+      final tokenSpan = builtSpan.children!.single as TextSpan;
+      expect(tokenSpan.style?.color, Colors.red);
     });
 
     testWidgets('renders mention label in read-only mode', (tester) async {
@@ -46,6 +55,10 @@ void main() {
       expect(find.byType(SelectableText), findsOneWidget);
       expect(find.text('@Alice'), findsOneWidget);
       expect(find.text('<@1|Alice>'), findsNothing);
+
+      final selectable = tester.widget<SelectableText>(find.byType(SelectableText));
+      final tokenSpan = selectable.textSpan!.children!.single as TextSpan;
+      expect(tokenSpan.style?.color, Colors.blue);
     });
   });
 }
@@ -69,6 +82,10 @@ class _MentionRule extends TokenRule {
     required TextStyle defaultStyle,
     required bool isReadOnly,
   }) {
-    return TextSpan(text: '@${match.groups[1]}', style: defaultStyle);
+    final color = isReadOnly ? Colors.blue : Colors.red;
+    return TextSpan(
+      text: '@${match.groups[1]}',
+      style: defaultStyle.copyWith(color: color),
+    );
   }
 }
