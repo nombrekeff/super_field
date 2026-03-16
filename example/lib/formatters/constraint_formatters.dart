@@ -9,6 +9,7 @@ class SingleTokenOnlyFormatter extends TokenInputFormatter {
   });
 
   final String ruleId;
+  static final RegExp _partialMentionPattern = RegExp(r'^@[^\s]*$');
 
   @override
   TextEditingValue formatAst(
@@ -18,6 +19,7 @@ class SingleTokenOnlyFormatter extends TokenInputFormatter {
   ) {
     final trimmed = newValue.text.trim();
     if (trimmed.isEmpty) return newValue;
+    if (_partialMentionPattern.hasMatch(trimmed)) return newValue;
 
     if (ast.length != 1) return oldValue;
     final token = ast.first;
