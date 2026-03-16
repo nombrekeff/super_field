@@ -190,6 +190,8 @@ class TokenEditingController extends TextEditingController {
 
   @override
   set value(TextEditingValue newValue) {
+    // Capture the pre-update value so selection sanitization can detect
+    // history-driven text replacements (undo/redo) vs. caret moves.
     final oldValue = value;
     final newAst = lexer.parse(newValue.text);
     _ast = newAst;

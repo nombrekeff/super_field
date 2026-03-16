@@ -127,7 +127,8 @@ void main() {
         );
 
         // Cursor offset 7 is inside token [3, 12), but after history restore
-        // it should stay near the previous side (start), not jump to token end.
+        // it should stay near the previous cursor side (offset 3, token start),
+        // not jump to token end.
         expect(controller.selection.baseOffset, 3);
       });
 
@@ -143,6 +144,8 @@ void main() {
         );
 
         expect(controller.selection.baseOffset, 12);
+        expect(controller.selection.extentOffset, 12);
+        expect(controller.selection.isValid, isTrue);
       });
     });
 
