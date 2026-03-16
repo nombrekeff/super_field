@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:super_field/super_field.dart';
 
+const zeroWidthSpace = '\u200B';
+
 void main() {
   group('TokenizedTextField', () {
     late TokenEditingController controller;
@@ -34,8 +36,9 @@ void main() {
         style: editableText.style,
         withComposing: false,
       );
-      final visibleText = builtSpan.toPlainText().replaceAll('\u200B', '');
-      expect(visibleText, '@Alice');
+      final strippedText =
+          builtSpan.toPlainText().replaceAll(zeroWidthSpace, '');
+      expect(strippedText, '@Alice');
       final tokenSpan = _findTextSpanByText(builtSpan, '@Alice');
       expect(tokenSpan, isNotNull);
       expect(tokenSpan!.style?.color, Colors.red);
