@@ -32,24 +32,55 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
     final atomicMatches =
         oldAst.where((m) => _isAtomic(m)).toList(growable: false);
 
-    // Compute the deletion point once — it only depends on the two text values.
-    final deletedAt = _findDeletionPoint(oldValue.text, newValue.text);
-    if (deletedAt == null) return newValue;
+    final deletedRange = _findDeletedRange(oldValue.text, newValue.text);
+    if (deletedRange == null) return newValue;
+    final deletedStart = deletedRange.$1;
+    final deletedEnd = deletedRange.$2;
+
+    int expandedStart = deletedStart;
+    int expandedEnd = deletedEnd;
+    bool overlapsAtomic = false;
 
     for (final match in atomicMatches) {
-      if (deletedAt >= match.start && deletedAt < match.end) {
-        // Strip the entire token from the old text.
-        final stripped =
-            oldValue.text.substring(0, match.start) +
-            oldValue.text.substring(match.end);
-        return TextEditingValue(
-          text: stripped,
-          selection: TextSelection.collapsed(offset: match.start),
-        );
+      if (_rangesOverlap(expandedStart, expandedEnd, match.start, match.end)) {
+        overlapsAtomic = true;
+        if (match.start < expandedStart) {
+          expandedStart = match.start;
+        }
+        if (match.end > expandedEnd) {
+          expandedEnd = match.end;
+        }
       }
     }
 
-    return newValue;
+    if (!overlapsAtomic) {
+      return newValue;
+    }
+
+    bool changed = true;
+    while (changed) {
+      changed = false;
+      for (final match in atomicMatches) {
+        if (_rangesOverlap(expandedStart, expandedEnd, match.start, match.end)) {
+          if (match.start < expandedStart) {
+            expandedStart = match.start;
+            changed = true;
+          }
+          if (match.end > expandedEnd) {
+            expandedEnd = match.end;
+            changed = true;
+          }
+        }
+      }
+    }
+
+    final stripped =
+        oldValue.text.substring(0, expandedStart) +
+        oldValue.text.substring(expandedEnd);
+    return TextEditingValue(
+      text: stripped,
+      selection: TextSelection.collapsed(offset: expandedStart),
+    );
   }
 
   bool _isAtomic(TokenMatch match) {
@@ -61,9 +92,9 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
     }
   }
 
-  /// Returns the index in [newText] where the deletion happened, or `null`
-  /// if the change is not a single contiguous deletion.
-  int? _findDeletionPoint(String oldText, String newText) {
+  /// Returns the deleted `[start, end)` range in [oldText], or `null` if
+  /// the change is not a single contiguous deletion.
+  (int, int)? _findDeletedRange(String oldText, String newText) {
     final deletedCount = oldText.length - newText.length;
     if (deletedCount <= 0) return null;
 
@@ -78,9 +109,16 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
     // Verify the suffix matches.
     final suffixStart = prefixLen + deletedCount;
     if (oldText.substring(suffixStart) == newText.substring(prefixLen)) {
-      return prefixLen;
+      return (prefixLen, suffixStart);
     }
 
     return null;
   }
+
+  bool _rangesOverlap(
+    int startA,
+    int endA,
+    int startB,
+    int endB,
+  ) => startA < endB && startB < endA;
 }

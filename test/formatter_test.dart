@@ -78,6 +78,38 @@ void main() {
       // Full token should be removed since deletion is inside atomic token range
       expect(result.text, 'Hi !');
     });
+
+    test('expands deletion that starts before an atomic token', () {
+      const old = 'A <@1|John> B';
+      // User deletes from space before token through first chars of token.
+      const newText = 'John> B';
+      final result = apply(old, newText, 0);
+
+      // Deletion overlaps token, so token must be removed fully too.
+      expect(result.text, ' B');
+      expect(result.selection.baseOffset, 0);
+    });
+
+    test('expands deletion that ends after an atomic token', () {
+      const old = 'A <@1|John> B';
+      // User deletes from inside token through following plain text.
+      const newText = 'A <@1|Jo';
+      final result = apply(old, newText, 8);
+
+      // Token is removed completely while preserving unaffected text.
+      expect(result.text, 'A ');
+      expect(result.selection.baseOffset, 2);
+    });
+
+    test('removes all atomic tokens touched by an expanded deletion range', () {
+      const old = '<@1|Alice><@2|Bob>!';
+      // Delete tail of first token and start of second token.
+      const newText = '<@1|AliceBob>!';
+      final result = apply(old, newText, 8);
+
+      expect(result.text, '!');
+      expect(result.selection.baseOffset, 0);
+    });
   });
 }
 
