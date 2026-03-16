@@ -27,8 +27,6 @@ void main() {
       );
 
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.text('@Alice'), findsOneWidget);
-      expect(find.text('<@1|Alice>'), findsNothing);
 
       final editableText = tester.widget<EditableText>(find.byType(EditableText));
       final builtSpan = editableText.controller.buildTextSpan(
@@ -36,7 +34,9 @@ void main() {
         style: editableText.style,
         withComposing: false,
       );
-      final tokenSpan = builtSpan.children!.single as TextSpan;
+      expect(builtSpan.toPlainText(), '@Alice');
+      final tokenSpan = _findTextSpanByText(builtSpan, '@Alice');
+      expect(tokenSpan, isNotNull);
       expect(tokenSpan.style?.color, Colors.red);
     });
 
@@ -53,14 +53,65 @@ void main() {
       );
 
       expect(find.byType(SelectableText), findsOneWidget);
-      expect(find.text('@Alice'), findsOneWidget);
-      expect(find.text('<@1|Alice>'), findsNothing);
 
       final selectable = tester.widget<SelectableText>(find.byType(SelectableText));
-      final tokenSpan = selectable.textSpan!.children!.single as TextSpan;
+      final span = selectable.textSpan!;
+      expect(span.toPlainText(), '@Alice');
+      final tokenSpan = _findTextSpanByText(span, '@Alice');
+      expect(tokenSpan, isNotNull);
       expect(tokenSpan.style?.color, Colors.blue);
     });
+
+    testWidgets('preserves composing range styling in editable mode', (
+      tester,
+    ) async {
+      controller.value = const TextEditingValue(
+        text: '<@1|Alice>',
+        selection: TextSelection.collapsed(offset: 9),
+        composing: TextRange(start: 1, end: 4),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Material(
+            child: TokenizedTextField(controller: controller),
+          ),
+        ),
+      );
+
+      final editableText = tester.widget<EditableText>(find.byType(EditableText));
+      final builtSpan = editableText.controller.buildTextSpan(
+        context: tester.element(find.byType(EditableText)),
+        style: editableText.style,
+        withComposing: true,
+      );
+
+      final composingSpan = _findTextSpan(
+        builtSpan,
+        (span) => span.style?.decoration == TextDecoration.underline,
+      );
+      expect(composingSpan, isNotNull);
+    });
   });
+}
+
+TextSpan? _findTextSpanByText(InlineSpan span, String text) =>
+    _findTextSpan(span, (candidate) => candidate.text == text);
+
+TextSpan? _findTextSpan(InlineSpan span, bool Function(TextSpan) predicate) {
+  if (span is TextSpan) {
+    if (predicate(span)) {
+      return span;
+    }
+    final children = span.children;
+    if (children != null) {
+      for (final child in children) {
+        final found = _findTextSpan(child, predicate);
+        if (found != null) return found;
+      }
+    }
+  }
+  return null;
 }
 
 class _MentionRule extends TokenRule {

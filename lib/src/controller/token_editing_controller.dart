@@ -48,6 +48,17 @@ class TokenEditingController extends TextEditingController {
     required bool withComposing,
   }) {
     final effectiveStyle = style ?? const TextStyle();
+    final textValue = value;
+
+    if (withComposing &&
+        textValue.isComposingRangeValid &&
+        !textValue.composing.isCollapsed) {
+      return super.buildTextSpan(
+        context: context,
+        style: effectiveStyle,
+        withComposing: true,
+      );
+    }
 
     if (_ast.isEmpty) {
       return TextSpan(style: effectiveStyle, text: text);
