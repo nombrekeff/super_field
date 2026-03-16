@@ -6,10 +6,12 @@ class SingleTokenOnlyFormatter extends TokenInputFormatter {
   const SingleTokenOnlyFormatter({
     required super.lexer,
     required this.ruleId,
+    this.inProgressInputRegex,
   });
 
   final String ruleId;
-  static final RegExp _inProgressMentionRegex = RegExp(r'^@[^\s]*$');
+  final RegExp? inProgressInputRegex;
+  static final RegExp _hasWhitespaceRegex = RegExp(r'\s');
 
   @override
   TextEditingValue formatAst(
@@ -19,13 +21,35 @@ class SingleTokenOnlyFormatter extends TokenInputFormatter {
   ) {
     final trimmed = newValue.text.trim();
     if (trimmed.isEmpty) return newValue;
-    if (_inProgressMentionRegex.hasMatch(trimmed)) return newValue;
+    if (_isInProgressInputAllowed(trimmed)) return newValue;
 
     if (ast.length != 1) return oldValue;
     final token = ast.first;
     if (token.ruleId != ruleId) return oldValue;
     if (trimmed != token.fullText) return oldValue;
     return newValue;
+  }
+
+  bool _isInProgressInputAllowed(String trimmed) {
+    if (inProgressInputRegex != null) {
+      return inProgressInputRegex!.hasMatch(trimmed);
+    }
+
+    final hasWhitespace = _hasWhitespaceRegex.hasMatch(trimmed);
+    if (hasWhitespace) return false;
+
+    for (final rule in lexer.rules) {
+      if (rule.id != ruleId) continue;
+      final matcher = rule.matcher;
+      if (matcher is StartsWithMatcher && trimmed.startsWith(matcher.trigger)) {
+        return true;
+      }
+      if (matcher is MarkupMatcher && trimmed.startsWith(matcher.tagPrefix)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 
