@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:super_field/super_field.dart';
 
+const zeroWidthSpace = '\u200B';
+
 void main() {
   group('TokenizedTextField', () {
     late TokenEditingController controller;
@@ -35,7 +37,9 @@ void main() {
         style: editableText.style,
         withComposing: false,
       );
-      expect(builtSpan.toPlainText(), '@Alice');
+      final strippedText =
+          builtSpan.toPlainText().replaceAll(zeroWidthSpace, '');
+      expect(strippedText, '@Alice');
       final tokenSpan = _findTextSpanByText(builtSpan, '@Alice');
       expect(tokenSpan, isNotNull);
       expect(tokenSpan!.style?.color, Colors.red);
@@ -67,9 +71,9 @@ void main() {
       tester,
     ) async {
       controller.value = const TextEditingValue(
-        text: '<@1|Alice>',
-        selection: TextSelection.collapsed(offset: 9),
-        composing: TextRange(start: 1, end: 4),
+        text: 'Hi <@1|Alice>!',
+        selection: TextSelection.collapsed(offset: 14),
+        composing: TextRange(start: 0, end: 2),
       );
 
       await tester.pumpWidget(

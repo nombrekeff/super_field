@@ -172,7 +172,7 @@ class _MentionScreenState extends State<MentionScreen> {
                   ),
                 ],
                 decoration: const InputDecoration(
-                  border: const OutlineInputBorder(),
+                  border: OutlineInputBorder(),
                   hintText: 'Type @ and choose one user…',
                   labelText: 'Assignee',
                 ),
