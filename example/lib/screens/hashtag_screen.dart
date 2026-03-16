@@ -103,7 +103,11 @@ class _HashtagScreenState extends State<HashtagScreen> {
                   ),
                 ],
                 decoration: const InputDecoration(
+<<<<<<< copilot/fix-atomic-token-deletion
                   border: OutlineInputBorder(),
+=======
+                  border: const OutlineInputBorder(),
+>>>>>>> main
                   hintText: 'Example: #flutter',
                   labelText: 'Primary hashtag',
                 ),
@@ -128,7 +132,11 @@ class _HashtagScreenState extends State<HashtagScreen> {
                   ),
                 ],
                 decoration: const InputDecoration(
+<<<<<<< copilot/fix-atomic-token-deletion
                   border: OutlineInputBorder(),
+=======
+                  border: const OutlineInputBorder(),
+>>>>>>> main
                   hintText: '#flutter #dart #mobile',
                   labelText: 'Allowed tags',
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:super_field/super_field.dart';
 
@@ -132,6 +133,49 @@ void main() {
         returnsNormally,
       );
     });
+
+    testWidgets('applies custom input formatters after atomic formatter', (
+      tester,
+    ) async {
+      const customFormatter = _RejectBangFormatter();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Material(
+            child: TokenizedTextField(
+              controller: controller,
+              inputFormatters: const [customFormatter],
+            ),
+          ),
+        ),
+      );
+
+      final textField = tester.widget<TextField>(find.byType(TextField));
+      final formatters = textField.inputFormatters!;
+
+      expect(formatters.first, isA<AtomicDeletionFormatter>());
+      expect(formatters.last, same(customFormatter));
+    });
+
+    testWidgets('forwards custom input formatters from form field wrapper', (
+      tester,
+    ) async {
+      const customFormatter = _RejectBangFormatter();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Material(
+            child: TokenizedTextFormField(
+              controller: controller,
+              inputFormatters: const [customFormatter],
+            ),
+          ),
+        ),
+      );
+
+      final textField = tester.widget<TextField>(find.byType(TextField));
+      expect(textField.inputFormatters!.last, same(customFormatter));
+    });
   });
 }
 
@@ -178,5 +222,20 @@ class _MentionRule extends TokenRule {
       text: '@${match.groups[1]}',
       style: defaultStyle.copyWith(color: color),
     );
+  }
+}
+
+class _RejectBangFormatter extends TextInputFormatter {
+  const _RejectBangFormatter();
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.contains('!')) {
+      return oldValue;
+    }
+    return newValue;
   }
 }

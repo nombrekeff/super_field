@@ -83,6 +83,9 @@ final controller = TokenEditingController(
 TokenizedTextField(
   controller: controller,
   decoration: const InputDecoration(hintText: 'Type @ to mention someone…'),
+  inputFormatters: const [
+    // Add custom constraints, e.g. single-token-only fields.
+  ],
 )
 ```
 
@@ -126,6 +129,7 @@ TokenEditingController
 
 TokenizedTextField
     ├── AtomicDeletionFormatter   (mandatory)
+    ├── inputFormatters           (optional custom constraints)
     ├── autocorrect: false
     └── enableSuggestions: false
 
@@ -142,6 +146,16 @@ TokenizedTextFormField   (wraps TokenizedTextField as a FormField)
 | `StartsWithMatcher(trigger)` | `@mention`, `#hashtag`, etc. |
 | `SurroundedByMatcher(prefix, suffix)` | `**bold**`, `[link]`, etc. |
 | `MarkupMatcher(tagPrefix)` | Hidden-ID markup `<@123|Label>` |
+
+---
+
+## Example app scenarios
+
+The `example/` app includes ready-to-run demos for common constraints:
+
+- Mention autocomplete with markup tokens
+- Single-value token fields (single mention, single hashtag)
+- Token-list-only fields (hashtags separated by spaces only)
 
 ---
 

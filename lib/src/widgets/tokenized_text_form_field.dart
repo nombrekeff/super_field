@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../controller/token_editing_controller.dart';
 import 'tokenized_text_field.dart';
@@ -27,6 +28,7 @@ class TokenizedTextFormField extends FormField<String> {
     int? maxLines = 1,
     FocusNode? focusNode,
     ValueChanged<String>? onChanged,
+    List<TextInputFormatter> inputFormatters = const [],
     // FormField properties
     super.validator,
     super.onSaved,
@@ -57,6 +59,7 @@ class TokenizedTextFormField extends FormField<String> {
               maxLines: maxLines,
               focusNode: focusNode,
               onChanged: onChangedHandler,
+              inputFormatters: inputFormatters,
             );
           },
         );
