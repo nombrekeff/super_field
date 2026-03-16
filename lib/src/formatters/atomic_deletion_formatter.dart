@@ -42,6 +42,15 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
     bool overlapsAtomic = false;
 
     for (final match in atomicMatches) {
+      if (match.end <= expandedStart) {
+        continue;
+      }
+      if (match.start >= expandedEnd) {
+        if (overlapsAtomic) {
+          break;
+        }
+        return newValue;
+      }
       if (_rangesOverlap(expandedStart, expandedEnd, match.start, match.end)) {
         overlapsAtomic = true;
         if (match.start < expandedStart) {
@@ -53,26 +62,7 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
       }
     }
 
-    if (!overlapsAtomic) {
-      return newValue;
-    }
-
-    bool changed = true;
-    while (changed) {
-      changed = false;
-      for (final match in atomicMatches) {
-        if (_rangesOverlap(expandedStart, expandedEnd, match.start, match.end)) {
-          if (match.start < expandedStart) {
-            expandedStart = match.start;
-            changed = true;
-          }
-          if (match.end > expandedEnd) {
-            expandedEnd = match.end;
-            changed = true;
-          }
-        }
-      }
-    }
+    if (!overlapsAtomic) return newValue;
 
     final stripped =
         oldValue.text.substring(0, expandedStart) +
