@@ -150,9 +150,8 @@ class TokenEditingController extends TextEditingController {
       }
 
       if (span is TextSpan && span.children == null && span.text != null) {
-        final localStart =
-            (composing.start - spanStart).clamp(0, spanLength) as int;
-        final localEnd = (composing.end - spanStart).clamp(0, spanLength) as int;
+        final localStart = (composing.start - spanStart).clamp(0, spanLength);
+        final localEnd = (composing.end - spanStart).clamp(0, spanLength);
         final spanStyle = span.style ?? defaultStyle;
 
         if (localStart > 0) {

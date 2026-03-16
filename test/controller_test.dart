@@ -70,13 +70,16 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       final context = tester.element(find.byType(SizedBox));
 
-      expect(
-        () => controller.buildTextSpan(
-          context: context,
-          withComposing: true,
-        ),
-        returnsNormally,
+      final span = controller.buildTextSpan(
+        context: context,
+        withComposing: true,
       );
+
+      final underlinedTextSpans = (span.children ?? const <InlineSpan>[])
+          .whereType<TextSpan>()
+          .where((s) => s.style?.decoration == TextDecoration.underline);
+
+      expect(underlinedTextSpans, isNotEmpty);
     });
 
     group('cursor sanitization', () {
