@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:super_field/super_field.dart';
@@ -76,7 +75,7 @@ void main() {
     });
 
     test('supports custom in-progress regex for other token types', () {
-      const customFormatter = SingleTokenOnlyFormatter(
+      final customFormatter = SingleTokenOnlyFormatter(
         lexer: TokenLexer(rules: [_BracketRule()]),
         ruleId: 'bracket',
         inProgressInputRegex: RegExp(r'^\[[^\s\]]*$'),
