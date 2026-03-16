@@ -92,6 +92,42 @@ void main() {
       );
       expect(composingSpan, isNotNull);
     });
+
+    testWidgets('supports focus and selection interaction in editable mode', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Material(
+            child: TokenizedTextField(controller: controller),
+          ),
+        ),
+      );
+
+      // Tap to focus the underlying EditableText.
+      await tester.tap(find.byType(TextField));
+      await tester.pumpAndSettle();
+
+      // Move the selection around, including to the end of the raw text.
+      expect(
+        () {
+          // Start of text.
+          controller.selection = const TextSelection.collapsed(offset: 0);
+
+          // Middle of text.
+          final middleOffset = controller.text.length ~/ 2;
+          controller.selection = TextSelection.collapsed(offset: middleOffset);
+
+          // End of text.
+          controller.selection =
+              TextSelection.collapsed(offset: controller.text.length);
+
+          // Move back to start again.
+          controller.selection = const TextSelection.collapsed(offset: 0);
+        },
+        returnsNormally,
+      );
+    });
   });
 }
 
