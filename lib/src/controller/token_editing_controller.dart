@@ -127,6 +127,68 @@ class TokenEditingController extends TextEditingController {
     return TextSpan(style: effectiveStyle, children: finalSpans);
   }
 
+  List<InlineSpan> _applyComposingToSpans(
+    List<InlineSpan> spans,
+    TextRange composing,
+    TextStyle defaultStyle,
+  ) {
+    final List<InlineSpan> result = <InlineSpan>[];
+    int offset = 0;
+
+    for (final span in spans) {
+      final spanText = span.toPlainText();
+      final spanLength = spanText.length;
+      final spanStart = offset;
+      final spanEnd = spanStart + spanLength;
+      offset = spanEnd;
+
+      if (spanLength == 0 ||
+          composing.end <= spanStart ||
+          composing.start >= spanEnd) {
+        result.add(span);
+        continue;
+      }
+
+      if (span is TextSpan && span.children == null && span.text != null) {
+        final localStart =
+            (composing.start - spanStart).clamp(0, spanLength) as int;
+        final localEnd = (composing.end - spanStart).clamp(0, spanLength) as int;
+        final spanStyle = span.style ?? defaultStyle;
+
+        if (localStart > 0) {
+          result.add(
+            TextSpan(
+              text: spanText.substring(0, localStart),
+              style: spanStyle,
+            ),
+          );
+        }
+
+        result.add(
+          TextSpan(
+            text: spanText.substring(localStart, localEnd),
+            style: spanStyle.merge(
+              const TextStyle(decoration: TextDecoration.underline),
+            ),
+          ),
+        );
+
+        if (localEnd < spanLength) {
+          result.add(
+            TextSpan(
+              text: spanText.substring(localEnd),
+              style: spanStyle,
+            ),
+          );
+        }
+      } else {
+        result.add(span);
+      }
+    }
+
+    return result;
+  }
+
   @override
   set value(TextEditingValue newValue) {
     final newAst = lexer.parse(newValue.text);

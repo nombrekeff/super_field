@@ -60,6 +60,25 @@ void main() {
       expect(controller.selection.baseOffset, 16);
     });
 
+    testWidgets('buildTextSpan handles composing ranges', (tester) async {
+      controller.value = const TextEditingValue(
+        text: 'Hi <@1|John>!',
+        selection: TextSelection.collapsed(offset: 13),
+        composing: TextRange(start: 0, end: 2),
+      );
+
+      await tester.pumpWidget(const SizedBox());
+      final context = tester.element(find.byType(SizedBox));
+
+      expect(
+        () => controller.buildTextSpan(
+          context: context,
+          withComposing: true,
+        ),
+        returnsNormally,
+      );
+    });
+
     group('cursor sanitization', () {
       test('cursor inside atomic token snaps forward when moving forward', () {
         // Text: "Hi <@1|John>!" — token "<@1|John>" spans [3, 12)
