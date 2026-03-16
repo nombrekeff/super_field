@@ -39,20 +39,19 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
 
     int expandedStart = deletedStart;
     int expandedEnd = deletedEnd;
-    bool overlapsAtomic = false;
+    bool hasAtomicOverlap = false;
 
+    // Lexer output is position-ordered and non-overlapping, so once we pass
+    // the current expanded deletion end we can stop scanning.
     for (final match in atomicMatches) {
       if (match.end <= expandedStart) {
         continue;
       }
       if (match.start >= expandedEnd) {
-        if (overlapsAtomic) {
-          break;
-        }
-        return newValue;
+        break;
       }
       if (_rangesOverlap(expandedStart, expandedEnd, match.start, match.end)) {
-        overlapsAtomic = true;
+        hasAtomicOverlap = true;
         if (match.start < expandedStart) {
           expandedStart = match.start;
         }
@@ -62,7 +61,7 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
       }
     }
 
-    if (!overlapsAtomic) return newValue;
+    if (!hasAtomicOverlap) return newValue;
 
     final stripped =
         oldValue.text.substring(0, expandedStart) +
@@ -105,6 +104,8 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
     return null;
   }
 
+  /// Returns `true` when the two half-open ranges `[startA, endA)` and
+  /// `[startB, endB)` share at least one index.
   bool _rangesOverlap(
     int startA,
     int endA,

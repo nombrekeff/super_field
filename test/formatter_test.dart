@@ -81,7 +81,7 @@ void main() {
 
     test('expands deletion that starts before an atomic token', () {
       const old = 'A <@1|John> B';
-      // User deletes from space before token through first chars of token.
+      // Simulate deleting from the start of the string through part of token.
       const newText = 'John> B';
       final result = apply(old, newText, 0);
 
@@ -103,7 +103,7 @@ void main() {
 
     test('removes all atomic tokens touched by an expanded deletion range', () {
       const old = '<@1|Alice><@2|Bob>!';
-      // Delete tail of first token and start of second token.
+      // Simulate deleting the boundary between adjacent tokens.
       const newText = '<@1|AliceBob>!';
       final result = apply(old, newText, 8);
 
