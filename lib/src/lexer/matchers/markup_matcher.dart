@@ -18,15 +18,15 @@ import '../token_matcher.dart';
 /// // Matches "<@123|John Doe>" and yields groups: ["123", "John Doe"]
 /// ```
 class MarkupMatcher extends TokenMatcher {
-  @override
-  bool isPartialMatch(String text) {
-    return text.startsWith("<$tagPrefix");
-  }
-
   MarkupMatcher({required this.tagPrefix})
       : _pattern = RegExp(
           '<${RegExp.escape(tagPrefix)}([^|>]+)\\|([^>]+)>',
         );
+  
+  @override
+  bool isPartialMatch(String text) {
+    return text.startsWith("<$tagPrefix");
+  }
 
   /// The character immediately after `<` that identifies the token type.
   final String tagPrefix;

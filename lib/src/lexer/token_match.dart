@@ -30,19 +30,24 @@ class TokenMatch {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
+    
     if (other is! TokenMatch) return false;
+
     if (other.start != start ||
         other.end != end ||
         other.fullText != fullText ||
         other.ruleId != ruleId) {
       return false;
     }
+    
     if (groups.length != other.groups.length) return false;
+
     for (int i = 0; i < groups.length; i++) {
       if (groups[i] != other.groups[i]) {
         return false;
       }
     }
+
     return true;
   }
 

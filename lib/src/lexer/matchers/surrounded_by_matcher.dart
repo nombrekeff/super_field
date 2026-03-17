@@ -7,12 +7,12 @@ import '../token_matcher.dart';
 /// The content between the delimiters is surfaced as the first element of
 /// [TokenMatch.groups].
 class SurroundedByMatcher extends TokenMatcher {
+  const SurroundedByMatcher({required this.prefix, required this.suffix});
+
   @override
   bool isPartialMatch(String text) {
     return text.startsWith(prefix) && !text.endsWith(suffix);
   }
-
-  const SurroundedByMatcher({required this.prefix, required this.suffix});
 
   /// The opening delimiter.
   final String prefix;
