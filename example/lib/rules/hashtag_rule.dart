@@ -9,7 +9,7 @@ class HashtagRule extends TokenRule {
   String get id => 'hashtag';
 
   @override
-  TokenMatcher get matcher => const StartsWithMatcher('#');
+  TokenMatcher get matcher => RegexMatcher(RegExp(r'#[\w]+'));
 
   @override
   TokenBehavior get behavior => TokenBehavior.transparent;

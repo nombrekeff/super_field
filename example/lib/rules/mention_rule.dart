@@ -13,6 +13,12 @@ class MentionRule extends TokenRule {
   TokenMatcher get matcher => MarkupMatcher(tagPrefix: '@');
 
   @override
+  Iterable<TokenMatcher> get inputMatchers => [
+        const StartsWithMatcher('@'),
+        MarkupMatcher(tagPrefix: '@'),
+      ];
+
+  @override
   TokenBehavior get behavior => TokenBehavior.atomic;
 
   @override

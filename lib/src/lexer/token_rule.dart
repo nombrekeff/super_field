@@ -25,6 +25,14 @@ abstract class TokenRule {
   /// The matcher used to locate this token type within the text.
   TokenMatcher get matcher;
 
+  /// Matchers that represent valid in-progress input for this rule.
+  ///
+  /// This is used by package-supplied constraint formatters to allow users to
+  /// type a trigger sequence before a full token exists in the AST. Rules with
+  /// hidden markup can override this to admit a more user-friendly composing
+  /// syntax, such as `@alice` before it becomes `<@1|Alice>`.
+  Iterable<TokenMatcher> get inputMatchers => [matcher];
+
   /// Defines cursor movement and deletion behaviour for matched tokens.
   TokenBehavior get behavior;
 

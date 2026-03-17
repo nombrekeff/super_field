@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:super_field/super_field.dart';
 
-import '../formatters/constraint_formatters.dart';
 import '../rules/mention_rule.dart';
 import '../widgets/demo_widgets.dart';
 

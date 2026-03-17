@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:super_field/super_field.dart';
-import 'package:super_field_example/formatters/constraint_formatters.dart';
 import 'package:super_field_example/rules/hashtag_rule.dart';
 import 'package:super_field_example/widgets/demo_widgets.dart';
 
@@ -95,9 +94,9 @@ class _HashtagScreenState extends State<HashtagScreen> {
               const SizedBox(height: 12),
               TokenizedTextFormField(
                 controller: _singleHashtagController,
-                inputFormatters: const [
+                inputFormatters: [
                   SingleTokenOnlyFormatter(
-                    lexer: TokenLexer(rules: [HashtagRule()]),
+                    lexer: _singleHashtagController.lexer,
                     ruleId: 'hashtag',
                   ),
                 ],
@@ -120,9 +119,9 @@ class _HashtagScreenState extends State<HashtagScreen> {
               TokenizedTextFormField(
                 controller: _hashtagListController,
                 maxLines: 2,
-                inputFormatters: const [
-                  HashtagListOnlyFormatter(
-                    lexer: TokenLexer(rules: [HashtagRule()]),
+                inputFormatters: [
+                  TokenListOnlyFormatter(
+                    lexer: _hashtagListController.lexer,
                     ruleId: 'hashtag',
                   ),
                 ],

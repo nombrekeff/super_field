@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:super_field/super_field.dart';
-import 'package:super_field_example/formatters/constraint_formatters.dart';
 import 'package:super_field_example/rules/hashtag_rule.dart';
 import 'package:super_field_example/rules/mention_rule.dart';
 
@@ -74,11 +73,10 @@ void main() {
       expect(result.text, '#');
     });
 
-    test('supports custom in-progress regex for other token types', () {
+    test('supports custom in-progress entry via TokenRule.inputMatchers', () {
       final customFormatter = SingleTokenOnlyFormatter(
-        lexer: TokenLexer(rules: [_BracketRule()]),
+        lexer: TokenLexer(rules: [const _BracketRule()]),
         ruleId: 'bracket',
-        inProgressInputRegex: RegExp(r'^\[[^\s\]]*$'),
       );
 
       final result = customFormatter.formatEditUpdate(
@@ -95,6 +93,50 @@ void main() {
       expect(result.text, '[pa');
     });
   });
+
+  group('TokenListOnlyFormatter', () {
+    const formatter = TokenListOnlyFormatter(
+      lexer: TokenLexer(rules: [HashtagRule()]),
+      ruleId: 'hashtag',
+    );
+
+    TextEditingValue apply({
+      required String oldText,
+      required String newText,
+      required int cursorOffset,
+    }) {
+      return formatter.formatEditUpdate(
+        TextEditingValue(
+          text: oldText,
+          selection: TextSelection.collapsed(offset: oldText.length),
+        ),
+        TextEditingValue(
+          text: newText,
+          selection: TextSelection.collapsed(offset: cursorOffset),
+        ),
+      );
+    }
+
+    test('allows a bare trigger as the next list item', () {
+      final result = apply(
+        oldText: '#flutter ',
+        newText: '#flutter #',
+        cursorOffset: 10,
+      );
+
+      expect(result.text, '#flutter #');
+    });
+
+    test('rejects plain text inside a token list field', () {
+      final result = apply(
+        oldText: '#flutter ',
+        newText: '#flutter hello',
+        cursorOffset: 14,
+      );
+
+      expect(result.text, '#flutter ');
+    });
+  });
 }
 
 class _BracketRule extends TokenRule {
@@ -105,6 +147,11 @@ class _BracketRule extends TokenRule {
 
   @override
   TokenMatcher get matcher => RegexMatcher(RegExp(r'\[[^\]]+\]'));
+
+  @override
+  Iterable<TokenMatcher> get inputMatchers => [
+        RegexMatcher(RegExp(r'\[[^\s\]]*$')),
+      ];
 
   @override
   TokenBehavior get behavior => TokenBehavior.atomic;

@@ -12,6 +12,7 @@ A lightweight, highly extensible Flutter text editing ecosystem that bridges the
 - **Built-in Matchers** — `RegexMatcher`, `StartsWithMatcher`, `SurroundedByMatcher`, `MarkupMatcher`.
 - **Cursor Guard** — `TokenEditingController` intercepts every cursor movement and prevents the caret from landing inside hidden markup.
 - **Atomic Deletion** — `AtomicDeletionFormatter` removes an entire token on a single backspace press.
+- **Entry Constraints** — `SingleTokenOnlyFormatter` and `TokenListOnlyFormatter` let you keep fields token-only while still allowing in-progress trigger text like `@` or `#`.
 - **Autocomplete** — State-driven trigger management; the package emits `AutocompleteState` events, and you supply the UI.
 - **Form Support** — `TokenizedTextFormField` integrates with Flutter's `Form` / `validator` / `onSaved` API.
 - **Read-only mode** — Pass `readOnly: true` to render a selectable, non-editable rich-text view.
@@ -39,6 +40,12 @@ class MentionRule extends TokenRule {
 
   @override
   TokenMatcher get matcher => MarkupMatcher(tagPrefix: '@');
+
+  @override
+  Iterable<TokenMatcher> get inputMatchers => [
+    const StartsWithMatcher('@'),
+    MarkupMatcher(tagPrefix: '@'),
+  ];
 
   @override
   TokenBehavior get behavior => TokenBehavior.atomic;
@@ -84,10 +91,30 @@ TokenizedTextField(
   controller: controller,
   decoration: const InputDecoration(hintText: 'Type @ to mention someone…'),
   inputFormatters: const [
-    // Add custom constraints, e.g. single-token-only fields.
+    SingleTokenOnlyFormatter(
+      lexer: TokenLexer(rules: [MentionRule()]),
+      ruleId: 'mention',
+    ),
   ],
 )
 ```
+
+### 3b. Restrict a field to a token list
+
+```dart
+TokenizedTextField(
+  controller: hashtagController,
+  inputFormatters: const [
+    TokenListOnlyFormatter(
+      lexer: TokenLexer(rules: [HashtagRule()]),
+      ruleId: 'hashtag',
+    ),
+  ],
+)
+```
+
+`TokenListOnlyFormatter` allows whitespace-separated tokens from a single rule
+and preserves the last partial segment, so users can type `#` and keep going.
 
 ### 4. Insert a completed token
 
@@ -104,9 +131,8 @@ controller.replaceMatch(
 
 The raw string stored by the controller may contain hidden markup. Use the `MarkupMatcher` to work with the `<[prefix][id]|[label]>` pattern.
 
-| Raw string | Rendered |
-|---|---|
-| `Hello <@123|John Doe>!` | `Hello` **@John Doe** `!` |
+- Raw string: `Hello <@123|John Doe>!`
+- Rendered: `Hello @John Doe!`
 
 When you need to persist the value, call `controller.text` to get the full raw string. To get a human-readable version, call `controller.getPlainText()`.
 
@@ -114,7 +140,7 @@ When you need to persist the value, call `controller.text` to get the full raw s
 
 ## Architecture overview
 
-```
+```text
 TokenRule (id, matcher, behavior, buildSpan, toPlainText)
     │
     ▼
@@ -140,12 +166,10 @@ TokenizedTextFormField   (wraps TokenizedTextField as a FormField)
 
 ## Token matchers
 
-| Matcher | Use case |
-|---|---|
-| `RegexMatcher(pattern)` | Any regex-based token |
-| `StartsWithMatcher(trigger)` | `@mention`, `#hashtag`, etc. |
-| `SurroundedByMatcher(prefix, suffix)` | `**bold**`, `[link]`, etc. |
-| `MarkupMatcher(tagPrefix)` | Hidden-ID markup `<@123|Label>` |
+- `RegexMatcher(pattern)`: Any regex-based token.
+- `StartsWithMatcher(trigger)`: `@mention`, `#hashtag`, and similar trigger-prefixed tokens.
+- `SurroundedByMatcher(prefix, suffix)`: Delimited tokens such as `**bold**` or `[link]`.
+- `MarkupMatcher(tagPrefix)`: Hidden-ID markup such as `<@123|Label>`.
 
 ---
 
@@ -156,6 +180,10 @@ The `example/` app includes ready-to-run demos for common constraints:
 - Mention autocomplete with markup tokens
 - Single-value token fields (single mention, single hashtag)
 - Token-list-only fields (hashtags separated by spaces only)
+
+When a rule stores tokens in hidden markup but users type a different composing
+syntax, override `TokenRule.inputMatchers` so package-supplied constraint
+formatters know which in-progress text is valid.
 
 ---
 

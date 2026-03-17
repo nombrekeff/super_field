@@ -107,6 +107,147 @@ void main() {
       expect(result.selection.baseOffset, 0);
     });
   });
+
+  group('SingleTokenOnlyFormatter', () {
+    final formatter = SingleTokenOnlyFormatter(
+      lexer: TokenLexer(rules: [_AutocompleteMentionRule()]),
+      ruleId: 'mention',
+    );
+
+    TextEditingValue apply({
+      required String oldText,
+      required String newText,
+      required int cursorOffset,
+    }) {
+      return formatter.formatEditUpdate(
+        TextEditingValue(
+          text: oldText,
+          selection: TextSelection.collapsed(offset: oldText.length),
+        ),
+        TextEditingValue(
+          text: newText,
+          selection: TextSelection.collapsed(offset: cursorOffset),
+        ),
+      );
+    }
+
+    test('allows bare trigger input through rule input matchers', () {
+      final result = apply(oldText: '', newText: '@', cursorOffset: 1);
+
+      expect(result.text, '@');
+    });
+
+    test('allows completed token markup', () {
+      const token = '<@1|Alice>';
+      final result = apply(
+        oldText: '@al',
+        newText: token,
+        cursorOffset: token.length,
+      );
+
+      expect(result.text, token);
+    });
+
+    test('rejects plain text', () {
+      final result = apply(oldText: '', newText: 'alice', cursorOffset: 5);
+
+      expect(result.text, '');
+    });
+  });
+
+  group('TokenListOnlyFormatter', () {
+    final formatter = TokenListOnlyFormatter(
+      lexer: TokenLexer(rules: [_HashtagRule()]),
+      ruleId: 'hashtag',
+    );
+
+    TextEditingValue apply({
+      required String oldText,
+      required String newText,
+      required int cursorOffset,
+    }) {
+      return formatter.formatEditUpdate(
+        TextEditingValue(
+          text: oldText,
+          selection: TextSelection.collapsed(offset: oldText.length),
+        ),
+        TextEditingValue(
+          text: newText,
+          selection: TextSelection.collapsed(offset: cursorOffset),
+        ),
+      );
+    }
+
+    test('allows a bare trailing trigger', () {
+      final result = apply(
+        oldText: '#flutter ',
+        newText: '#flutter #',
+        cursorOffset: 10,
+      );
+
+      expect(result.text, '#flutter #');
+    });
+
+    test('allows completed whitespace-separated tokens', () {
+      final result = apply(
+        oldText: '#flutter #',
+        newText: '#flutter #dart',
+        cursorOffset: 14,
+      );
+
+      expect(result.text, '#flutter #dart');
+    });
+
+    test('rejects mixed plain text', () {
+      final result = apply(
+        oldText: '#flutter ',
+        newText: '#flutter hello',
+        cursorOffset: 14,
+      );
+
+      expect(result.text, '#flutter ');
+    });
+  });
+
+  group('formatter and autocomplete integration', () {
+    test('admitted partial mention input still activates autocomplete', () {
+      final formatter = SingleTokenOnlyFormatter(
+        lexer: TokenLexer(rules: [_AutocompleteMentionRule()]),
+        ruleId: 'mention',
+      );
+
+      final controller = TokenEditingController(
+        lexer: TokenLexer(rules: [_AutocompleteMentionRule()]),
+        autocomplete: AutocompleteConfig(
+          triggers: [
+            const AutocompleteTrigger(
+              triggerId: 'mention_search',
+              activationMatcher: StartsWithMatcher('@'),
+            ),
+          ],
+        ),
+      );
+
+      final formatted = formatter.formatEditUpdate(
+        const TextEditingValue(
+          text: '',
+          selection: TextSelection.collapsed(offset: 0),
+        ),
+        const TextEditingValue(
+          text: '@al',
+          selection: TextSelection.collapsed(offset: 3),
+        ),
+      );
+
+      controller.value = formatted;
+
+      expect(controller.text, '@al');
+      expect(controller.autocompleteState.isActive, isTrue);
+      expect(controller.autocompleteState.query, 'al');
+
+      controller.dispose();
+    });
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -151,4 +292,50 @@ class _TransparentMentionRule extends TokenRule {
     required isReadOnly,
   }) =>
       TextSpan(text: match.groups[1]);
+}
+
+class _AutocompleteMentionRule extends TokenRule {
+  @override
+  String get id => 'mention';
+
+  @override
+  TokenMatcher get matcher => MarkupMatcher(tagPrefix: '@');
+
+  @override
+  Iterable<TokenMatcher> get inputMatchers => [
+        const StartsWithMatcher('@'),
+        MarkupMatcher(tagPrefix: '@'),
+      ];
+
+  @override
+  TokenBehavior get behavior => TokenBehavior.atomic;
+
+  @override
+  InlineSpan buildSpan({
+    required context,
+    required match,
+    required defaultStyle,
+    required isReadOnly,
+  }) =>
+      TextSpan(text: match.groups[1]);
+}
+
+class _HashtagRule extends TokenRule {
+  @override
+  String get id => 'hashtag';
+
+  @override
+  TokenMatcher get matcher => const StartsWithMatcher('#');
+
+  @override
+  TokenBehavior get behavior => TokenBehavior.transparent;
+
+  @override
+  InlineSpan buildSpan({
+    required context,
+    required match,
+    required defaultStyle,
+    required isReadOnly,
+  }) =>
+      TextSpan(text: match.fullText);
 }
