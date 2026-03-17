@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:super_field/super_field.dart';
-
-import '../formatters/constraint_formatters.dart';
-import '../rules/hashtag_rule.dart';
-import '../widgets/demo_widgets.dart';
+import 'package:super_field_example/formatters/constraint_formatters.dart';
+import 'package:super_field_example/rules/hashtag_rule.dart';
+import 'package:super_field_example/widgets/demo_widgets.dart';
 
 /// Demonstrates [StartsWithMatcher] with hashtag tokens:
 ///
