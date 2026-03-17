@@ -37,7 +37,8 @@ void main() {
 
       final chip = outerPadding.child as Chip;
       expect(chip.materialTapTargetSize, MaterialTapTargetSize.shrinkWrap);
-      expect(chip.visualDensity, const VisualDensity(horizontal: -4, vertical: -4));
+      expect(chip.visualDensity,
+          const VisualDensity(horizontal: -4, vertical: -4));
       expect(chip.labelPadding, EdgeInsets.zero);
       expect(chip.padding, EdgeInsets.zero);
       expect(chip.labelStyle?.fontSize, 12);

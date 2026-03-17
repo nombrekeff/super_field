@@ -8,6 +8,11 @@ import '../token_matcher.dart';
 /// A "word" is defined as any run of non-whitespace characters that
 /// immediately follows the trigger without any separating space.
 class StartsWithMatcher extends TokenMatcher {
+  @override
+  bool isPartialMatch(String text) {
+    return text.startsWith(trigger) && !_whitespace.hasMatch(text);
+  }
+
   const StartsWithMatcher(this.trigger);
 
   /// The character (or short string) that introduces the token.

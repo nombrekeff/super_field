@@ -13,8 +13,7 @@ import 'token_input_formatter.dart';
 /// This ensures a single backspace keypress always removes a whole token
 /// rather than exposing internal markup characters.
 class AtomicDeletionFormatter extends TokenInputFormatter {
-  AtomicDeletionFormatter({required super.lexer})
-      : _rules = lexer.rules;
+  AtomicDeletionFormatter({required super.lexer}) : _rules = lexer.rules;
 
   final List<TokenRule> _rules;
 
@@ -33,7 +32,7 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
         oldAst.where((m) => _isAtomic(m)).toList(growable: false);
 
     final deletedRange = _findDeletedRange(oldValue.text, newValue.text);
-    
+
     if (deletedRange == null) return newValue;
     final deletedStart = deletedRange.$1;
     final deletedEnd = deletedRange.$2;
@@ -64,8 +63,7 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
 
     if (!hasAtomicOverlap) return newValue;
 
-    final stripped =
-        oldValue.text.substring(0, expandedStart) +
+    final stripped = oldValue.text.substring(0, expandedStart) +
         oldValue.text.substring(expandedEnd);
     return TextEditingValue(
       text: stripped,
@@ -112,5 +110,6 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
     int endA,
     int startB,
     int endB,
-  ) => startA < endB && startB < endA;
+  ) =>
+      startA < endB && startB < endA;
 }

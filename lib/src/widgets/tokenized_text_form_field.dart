@@ -50,8 +50,8 @@ class TokenizedTextFormField extends FormField<String> {
               controller: controller,
               readOnly: readOnly,
               decoration: decoration?.copyWith(
-                errorText: field.errorText ?? decoration.errorText,
-              ) ??
+                    errorText: field.errorText ?? decoration.errorText,
+                  ) ??
                   (field.errorText != null
                       ? InputDecoration(errorText: field.errorText)
                       : null),

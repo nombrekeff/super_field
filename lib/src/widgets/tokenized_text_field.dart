@@ -72,7 +72,8 @@ class _TokenizedTextFieldState extends State<TokenizedTextField> {
   void didUpdateWidget(TokenizedTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller.lexer != widget.controller.lexer) {
-      _atomicFormatter = AtomicDeletionFormatter(lexer: widget.controller.lexer);
+      _atomicFormatter =
+          AtomicDeletionFormatter(lexer: widget.controller.lexer);
     }
   }
 

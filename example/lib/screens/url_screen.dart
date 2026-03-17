@@ -79,8 +79,7 @@ class _UrlScreenState extends State<UrlScreen> {
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Row(
                     children: [
-                      Icon(Icons.link,
-                          size: 14, color: Colors.blue.shade700),
+                      Icon(Icons.link, size: 14, color: Colors.blue.shade700),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(

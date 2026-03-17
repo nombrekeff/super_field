@@ -16,8 +16,7 @@ void main() {
       return formatter.formatEditUpdate(
         TextEditingValue(
           text: oldText,
-          selection: TextSelection.collapsed(
-              offset: oldText.length),
+          selection: TextSelection.collapsed(offset: oldText.length),
         ),
         TextEditingValue(
           text: newText,
@@ -52,19 +51,16 @@ void main() {
     });
 
     test('does not modify deletion for transparent-behavior tokens', () {
-      final transparentLexer =
-          TokenLexer(rules: [_TransparentMentionRule()]);
+      final transparentLexer = TokenLexer(rules: [_TransparentMentionRule()]);
       final transparentFormatter =
           AtomicDeletionFormatter(lexer: transparentLexer);
       const old = '<@1|John>';
       // Delete last char of token
       final result = transparentFormatter.formatEditUpdate(
         const TextEditingValue(
-            text: old,
-            selection: TextSelection.collapsed(offset: old.length)),
+            text: old, selection: TextSelection.collapsed(offset: old.length)),
         const TextEditingValue(
-            text: '<@1|John',
-            selection: TextSelection.collapsed(offset: 8)),
+            text: '<@1|John', selection: TextSelection.collapsed(offset: 8)),
       );
       // Should be returned as-is (transparent behavior)
       expect(result.text, '<@1|John');

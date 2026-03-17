@@ -31,7 +31,8 @@ void main() {
 
       expect(find.byType(TextField), findsOneWidget);
 
-      final editableText = tester.widget<EditableText>(find.byType(EditableText));
+      final editableText =
+          tester.widget<EditableText>(find.byType(EditableText));
       final builtSpan = editableText.controller.buildTextSpan(
         context: tester.element(find.byType(EditableText)),
         style: editableText.style,
@@ -59,7 +60,8 @@ void main() {
 
       expect(find.byType(SelectableText), findsOneWidget);
 
-      final selectable = tester.widget<SelectableText>(find.byType(SelectableText));
+      final selectable =
+          tester.widget<SelectableText>(find.byType(SelectableText));
       final span = selectable.textSpan!;
       expect(span.toPlainText(), '@Alice');
       final tokenSpan = _findTextSpanByText(span, '@Alice');
@@ -84,7 +86,8 @@ void main() {
         ),
       );
 
-      final editableText = tester.widget<EditableText>(find.byType(EditableText));
+      final editableText =
+          tester.widget<EditableText>(find.byType(EditableText));
       final builtSpan = editableText.controller.buildTextSpan(
         context: tester.element(find.byType(EditableText)),
         style: editableText.style,

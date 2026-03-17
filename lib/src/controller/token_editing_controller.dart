@@ -112,7 +112,9 @@ class TokenEditingController extends TextEditingController {
     }
 
     List<InlineSpan> finalSpans = spans;
-    if (withComposing && textValue.isComposingRangeValid && !textValue.composing.isCollapsed) {
+    if (withComposing &&
+        textValue.isComposingRangeValid &&
+        !textValue.composing.isCollapsed) {
       finalSpans = _applyComposingToSpans(
         spans,
         textValue.composing,
@@ -138,7 +140,9 @@ class TokenEditingController extends TextEditingController {
       final spanEnd = spanStart + spanLength;
       offset = spanEnd;
 
-      if (spanLength == 0 || composing.end <= spanStart || composing.start >= spanEnd) {
+      if (spanLength == 0 ||
+          composing.end <= spanStart ||
+          composing.start >= spanEnd) {
         result.add(span);
         continue;
       }
@@ -286,8 +290,9 @@ class TokenEditingController extends TextEditingController {
     }
 
     // Extract the word segment ending at the cursor position.
-    final before =
-        cursorOffset >= 0 && cursorOffset <= text.length ? text.substring(0, cursorOffset) : '';
+    final before = cursorOffset >= 0 && cursorOffset <= text.length
+        ? text.substring(0, cursorOffset)
+        : '';
 
     // Find the last word (no whitespace) ending at the cursor.
     final lastWordMatch = RegExp(r'\S+$').firstMatch(before);
@@ -300,8 +305,9 @@ class TokenEditingController extends TextEditingController {
     final wordStart = lastWordMatch.start;
 
     for (final trigger in autocomplete.triggers) {
-      final triggerMatches =
-          trigger.activationMatcher.findMatches(word, trigger.triggerId).toList();
+      final triggerMatches = trigger.activationMatcher
+          .findMatches(word, trigger.triggerId)
+          .toList();
 
       if (triggerMatches.isNotEmpty) {
         final m = triggerMatches.first;
@@ -331,9 +337,9 @@ class TokenEditingController extends TextEditingController {
 
   @internal
   void setAutocompleteState(AutocompleteState state) {
-      _autocompleteState = state;
-      autocomplete.onChange?.call(state);
-      notifyListeners();
+    _autocompleteState = state;
+    autocomplete.onChange?.call(state);
+    notifyListeners();
   }
 
   // ---------------------------------------------------------------------------

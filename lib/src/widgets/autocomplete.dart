@@ -45,7 +45,8 @@ class AutocompletableState extends State<Autocompletable> {
   void _onControllerChanged() {
     final autocomplete = widget.controller.autocompleteState;
     final suggestions =
-        widget.controller.autocomplete.onGetSuggestions?.call(autocomplete) ?? [];
+        widget.controller.autocomplete.onGetSuggestions?.call(autocomplete) ??
+            [];
 
     if (suggestions.isEmpty) {
       selectedIndex = 0;
@@ -65,18 +66,27 @@ class AutocompletableState extends State<Autocompletable> {
   KeyEventResult handleKeyboardEvent(FocusNode node, KeyEvent event) {
     final autocomplete = widget.controller.autocompleteState;
     final suggestions =
-        widget.controller.autocomplete.onGetSuggestions?.call(autocomplete) ?? [];
+        widget.controller.autocomplete.onGetSuggestions?.call(autocomplete) ??
+            [];
 
-    if (autocomplete.isActive && suggestions.isNotEmpty && event is KeyDownEvent) {
-      if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-        setSelectedIndex((selectedIndex + 1) % suggestions.length);
-        return KeyEventResult.handled;
-      } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-        setSelectedIndex((selectedIndex - 1 + suggestions.length) % suggestions.length);
-        return KeyEventResult.handled;
-      } else if (event.logicalKey == LogicalKeyboardKey.enter) {
-        _selectSuggestion(suggestions[selectedIndex]);
-        return KeyEventResult.handled;
+    if (autocomplete.isActive &&
+        suggestions.isNotEmpty &&
+        event is KeyDownEvent) {
+      switch (event.logicalKey) {
+        case LogicalKeyboardKey.escape:
+          widget.controller.setAutocompleteState(AutocompleteState.inactive);
+          return KeyEventResult.handled;
+        case LogicalKeyboardKey.arrowDown:
+          setSelectedIndex((selectedIndex + 1) % suggestions.length);
+          return KeyEventResult.handled;
+        case LogicalKeyboardKey.arrowUp:
+          setSelectedIndex(
+              (selectedIndex - 1 + suggestions.length) % suggestions.length);
+          return KeyEventResult.handled;
+        case LogicalKeyboardKey.tab:
+        case LogicalKeyboardKey.enter:
+          _selectSuggestion(suggestions[selectedIndex]);
+          return KeyEventResult.handled;
       }
     }
 
@@ -91,7 +101,8 @@ class AutocompletableState extends State<Autocompletable> {
   Widget build(BuildContext context) {
     final autocomplete = widget.controller.autocompleteState;
     final suggestions =
-        widget.controller.autocomplete.onGetSuggestions?.call(autocomplete) ?? [];
+        widget.controller.autocomplete.onGetSuggestions?.call(autocomplete) ??
+            [];
 
     return Focus(
       canRequestFocus: false,
@@ -128,9 +139,6 @@ class SuggestionList extends StatefulWidget {
     this.onSelect,
     this.selectedIndex = 0,
   });
-
-  // TODO: Make more configurable (e.g., support sections, empty state, custom item builder, etc.)
-  // TODO: Allow styling to be inherited from the app theme (e.g., use ListTileTheme) instead of hardcoding it here or passing it manually.
 
   final List<dynamic> suggestions;
   final Widget Function(BuildContext context, dynamic suggestion) itemBuilder;

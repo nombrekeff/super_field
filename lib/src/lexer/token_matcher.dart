@@ -11,4 +11,7 @@ abstract class TokenMatcher {
   ///
   /// The [ruleId] should be propagated to every [TokenMatch] produced.
   Iterable<TokenMatch> findMatches(String text, String ruleId);
+
+  /// Returns whether the provided [text] is a partial match or in-progress token.
+  bool isPartialMatch(String text);
 }

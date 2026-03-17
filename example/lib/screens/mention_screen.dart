@@ -48,7 +48,9 @@ class _MentionScreenState extends State<MentionScreen> {
         ],
         onGetSuggestions: (item) {
           final query = (item.query ?? '').toLowerCase();
-          return _users.where((u) => u['name']!.toLowerCase().contains(query)).toList();
+          return _users
+              .where((u) => u['name']!.toLowerCase().contains(query))
+              .toList();
         },
         suggestionItemBuilder: (context, user) => ListTile(
           dense: true,
@@ -76,7 +78,9 @@ class _MentionScreenState extends State<MentionScreen> {
         ],
         onGetSuggestions: (item) {
           final query = (item.query ?? '').toLowerCase();
-          return _users.where((u) => u['name']!.toLowerCase().contains(query)).toList();
+          return _users
+              .where((u) => u['name']!.toLowerCase().contains(query))
+              .toList();
         },
         suggestionItemBuilder: (context, user) => ListTile(
           dense: true,
@@ -119,7 +123,8 @@ class _MentionScreenState extends State<MentionScreen> {
             children: [
               const SectionHeader(
                 title: 'Mention Tokens',
-                description: 'Type @ followed by a name to trigger autocomplete. '
+                description:
+                    'Type @ followed by a name to trigger autocomplete. '
                     'Mentions use the hidden markup syntax <@id|Label> '
                     'and render as chips. A single backspace deletes the '
                     'entire chip (atomic deletion).',
@@ -155,7 +160,8 @@ class _MentionScreenState extends State<MentionScreen> {
               const SizedBox(height: 24),
               const SectionHeader(
                 title: 'Single Mention Field',
-                description: 'This field accepts only one mention token. Try typing @ '
+                description:
+                    'This field accepts only one mention token. Try typing @ '
                     'and selecting a user. Adding regular text or multiple '
                     'mentions is blocked by an input formatter.',
               ),

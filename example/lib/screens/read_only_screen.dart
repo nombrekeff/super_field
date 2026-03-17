@@ -75,8 +75,7 @@ class _ReadOnlyScreenState extends State<ReadOnlyScreen> {
             const SizedBox(height: 16),
             const SectionHeader(
               title: 'All rules combined (editable)',
-              description:
-                  'The same rules work together in an editable field. '
+              description: 'The same rules work together in an editable field. '
                   'You can mix mentions, hashtags, URLs, and formatting.',
             ),
             const SizedBox(height: 12),
@@ -115,7 +114,8 @@ class _CombinedFieldState extends State<_CombinedField> {
           ItalicRule(),
         ],
       ),
-      text: 'Try editing: <@1|Alice Johnson> loves #flutter at https://flutter.dev',
+      text:
+          'Try editing: <@1|Alice Johnson> loves #flutter at https://flutter.dev',
     );
   }
 

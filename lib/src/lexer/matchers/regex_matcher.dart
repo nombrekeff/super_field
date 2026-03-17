@@ -6,6 +6,11 @@ import '../token_matcher.dart';
 /// Every capture group in the pattern is surfaced as an entry in
 /// [TokenMatch.groups].
 class RegexMatcher extends TokenMatcher {
+  @override
+  bool isPartialMatch(String text) {
+    return pattern.hasMatch(text);
+  }
+
   const RegexMatcher(this.pattern);
 
   /// The regular expression used to locate tokens.

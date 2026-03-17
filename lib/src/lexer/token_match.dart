@@ -47,6 +47,5 @@ class TokenMatch {
   }
 
   @override
-  int get hashCode =>
-      Object.hashAll([start, end, fullText, ruleId, ...groups]);
+  int get hashCode => Object.hashAll([start, end, fullText, ruleId, ...groups]);
 }

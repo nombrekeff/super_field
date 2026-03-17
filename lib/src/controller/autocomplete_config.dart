@@ -25,5 +25,6 @@ class AutocompleteConfig {
   final List<dynamic> Function(AutocompleteState state)? onGetSuggestions;
 
   /// Optional builder for rendering suggestion items in the autocomplete overlay.
-  final Widget Function(BuildContext context, dynamic suggestion)? suggestionItemBuilder;
+  final Widget Function(BuildContext context, dynamic suggestion)?
+      suggestionItemBuilder;
 }

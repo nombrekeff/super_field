@@ -62,7 +62,8 @@ void main() {
   group('RegexMatcher', () {
     test('matches simple pattern', () {
       final matcher = RegexMatcher(RegExp(r'#\w+'));
-      final matches = matcher.findMatches('Hello #world, #dart!', 'tag').toList();
+      final matches =
+          matcher.findMatches('Hello #world, #dart!', 'tag').toList();
       expect(matches.length, 2);
       expect(matches[0].fullText, '#world');
       expect(matches[1].fullText, '#dart');
@@ -70,8 +71,7 @@ void main() {
 
     test('captures groups', () {
       final matcher = RegexMatcher(RegExp(r'(\w+)=(\w+)'));
-      final matches =
-          matcher.findMatches('key=value', 'kv').toList();
+      final matches = matcher.findMatches('key=value', 'kv').toList();
       expect(matches.first.groups, ['key', 'value']);
     });
 
@@ -84,7 +84,8 @@ void main() {
   group('StartsWithMatcher', () {
     test('matches trigger word', () {
       const matcher = StartsWithMatcher('@');
-      final matches = matcher.findMatches('Hello @john today', 'mention').toList();
+      final matches =
+          matcher.findMatches('Hello @john today', 'mention').toList();
       expect(matches.length, 1);
       expect(matches[0].fullText, '@john');
       expect(matches[0].groups, ['john']);
@@ -118,8 +119,7 @@ void main() {
 
   group('SurroundedByMatcher', () {
     test('matches single token', () {
-      const matcher =
-          SurroundedByMatcher(prefix: '**', suffix: '**');
+      const matcher = SurroundedByMatcher(prefix: '**', suffix: '**');
       final matches =
           matcher.findMatches('This is **bold** text', 'bold').toList();
       expect(matches.length, 1);
@@ -128,16 +128,14 @@ void main() {
     });
 
     test('matches multiple tokens', () {
-      const matcher =
-          SurroundedByMatcher(prefix: '[', suffix: ']');
+      const matcher = SurroundedByMatcher(prefix: '[', suffix: ']');
       final matches =
           matcher.findMatches('[one] and [two]', 'bracket').toList();
       expect(matches.length, 2);
     });
 
     test('returns empty when no match', () {
-      const matcher =
-          SurroundedByMatcher(prefix: '(', suffix: ')');
+      const matcher = SurroundedByMatcher(prefix: '(', suffix: ')');
       expect(matcher.findMatches('no parens', 'p'), isEmpty);
     });
   });
@@ -202,7 +200,8 @@ void main() {
       expect(ast[1].groups[1], 'Alice');
     });
 
-    test('toPlainText defaults to fullText for rules that do not override it', () {
+    test('toPlainText defaults to fullText for rules that do not override it',
+        () {
       // _MockBoldRule does not override toPlainText, so it falls back to fullText.
       final lexer = TokenLexer(rules: [_MockBoldRule()]);
       final ast = lexer.parse('This is **bold** text');

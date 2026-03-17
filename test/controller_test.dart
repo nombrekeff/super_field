@@ -94,7 +94,8 @@ void main() {
         expect(controller.selection.baseOffset, 12);
       });
 
-      test('cursor inside atomic token snaps backward when moving backward', () {
+      test('cursor inside atomic token snaps backward when moving backward',
+          () {
         // Simulate cursor was at position 13 (end of string), now moves to 7
         // (inside the token [3, 12)). The old offset (13) > new offset (7)
         // so it is a backward movement.
@@ -157,13 +158,15 @@ void main() {
         emitted = [];
         acController = TokenEditingController(
           lexer: TokenLexer(rules: [_MentionRule()]),
-          autocompleteTriggers: [
-            const AutocompleteTrigger(
-              triggerId: 'mention_search',
-              activationMatcher: StartsWithMatcher('@'),
-            ),
-          ],
-          onAutocompleteChange: emitted.add,
+          autocomplete: AutocompleteConfig(
+            triggers: [
+              const AutocompleteTrigger(
+                triggerId: 'mention_search',
+                activationMatcher: StartsWithMatcher('@'),
+              ),
+            ],
+            onChange: emitted.add,
+          ),
         );
       });
 
