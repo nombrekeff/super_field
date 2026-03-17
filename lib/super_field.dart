@@ -18,3 +18,5 @@ export 'src/formatters/token_input_formatter.dart';
 export 'src/formatters/atomic_deletion_formatter.dart';
 export 'src/widgets/tokenized_text_field.dart';
 export 'src/widgets/tokenized_text_form_field.dart';
+export 'src/widgets/autocomplete.dart';
+export 'src/controller/autocomplete_config.dart';

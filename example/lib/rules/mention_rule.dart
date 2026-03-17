@@ -37,17 +37,19 @@ class MentionRule extends TokenRule {
 
     return WidgetSpan(
       alignment: PlaceholderAlignment.middle,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        child: Chip(
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-          label: Text('@$label'),
-          backgroundColor: Colors.teal.shade100,
-          side: BorderSide(color: Colors.teal.shade300),
-          labelStyle: const TextStyle(fontSize: 12, height: 1),
-          labelPadding: EdgeInsets.zero,
-          padding: EdgeInsets.zero,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.teal.shade100.withAlpha(100),
+          border: Border.all(color: Colors.teal.shade300),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('@'),
+            Text(label),
+          ],
         ),
       ),
     );

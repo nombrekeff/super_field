@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import '../controller/token_editing_controller.dart';
-import '../formatters/atomic_deletion_formatter.dart';
-import '../lexer/token_match.dart';
-import '../lexer/token_rule.dart';
+import 'package:super_field/super_field.dart';
 
 /// A text field that renders interactive token widgets inline with plain text.
 ///
@@ -69,128 +65,37 @@ class _TokenizedTextFieldState extends State<TokenizedTextField> {
   @override
   void initState() {
     super.initState();
-    _atomicFormatter =
-        AtomicDeletionFormatter(lexer: widget.controller.lexer);
+    _atomicFormatter = AtomicDeletionFormatter(lexer: widget.controller.lexer);
   }
 
   @override
   void didUpdateWidget(TokenizedTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller.lexer != widget.controller.lexer) {
-      _atomicFormatter =
-          AtomicDeletionFormatter(lexer: widget.controller.lexer);
+      _atomicFormatter = AtomicDeletionFormatter(lexer: widget.controller.lexer);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final effectiveStyle =
-        widget.style ?? DefaultTextStyle.of(context).style;
+    final effectiveStyle = widget.style ?? DefaultTextStyle.of(context).style;
 
-    if (widget.readOnly) {
-      return _ReadOnlyTokenField(
+    return Autocompletable(
+      controller: widget.controller,
+      child: TextField(
+        readOnly: widget.readOnly,
         controller: widget.controller,
+        focusNode: widget.focusNode,
         style: effectiveStyle,
         decoration: widget.decoration,
-        focusNode: widget.focusNode,
         maxLines: widget.maxLines,
-      );
-    }
-
-    return TextField(
-      controller: widget.controller,
-      focusNode: widget.focusNode,
-      style: effectiveStyle,
-      decoration: widget.decoration,
-      maxLines: widget.maxLines,
-      // Mobile IME protection — must always be false.
-      autocorrect: false,
-      enableSuggestions: false,
-      onChanged: widget.onChanged,
-      inputFormatters: [_atomicFormatter, ...widget.inputFormatters],
+        // Mobile IME protection — must always be false.
+        autocorrect: false,
+        enableSuggestions: false,
+        selectAllOnFocus: false,
+        onChanged: widget.onChanged,
+        inputFormatters: [_atomicFormatter, ...widget.inputFormatters],
+      ),
     );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Read-only display
-// ---------------------------------------------------------------------------
-
-class _ReadOnlyTokenField extends StatelessWidget {
-  const _ReadOnlyTokenField({
-    required this.controller,
-    required this.style,
-    this.decoration,
-    this.focusNode,
-    this.maxLines,
-  });
-
-  final TokenEditingController controller;
-  final TextStyle style;
-  final InputDecoration? decoration;
-  final FocusNode? focusNode;
-  final int? maxLines;
-
-  @override
-  Widget build(BuildContext context) {
-    final richText = _buildRichText(context);
-    final child = SelectableText.rich(
-      richText,
-      style: style,
-      focusNode: focusNode,
-      maxLines: maxLines,
-    );
-
-    if (decoration != null) {
-      return InputDecorator(
-        decoration: decoration!,
-        child: child,
-      );
-    }
-    return child;
-  }
-
-  TextSpan _buildRichText(BuildContext context) {
-    final ast = controller.currentAst;
-    final text = controller.text;
-
-    if (ast.isEmpty) {
-      return TextSpan(text: text);
-    }
-
-    final spans = <InlineSpan>[];
-    int cursor = 0;
-
-    for (final match in ast) {
-      if (match.start > cursor) {
-        spans.add(TextSpan(text: text.substring(cursor, match.start)));
-      }
-      final rule = _ruleFor(match, controller);
-      if (rule != null) {
-        spans.add(rule.buildSpan(
-          context: context,
-          match: match,
-          defaultStyle: style,
-          isReadOnly: true,
-        ));
-      } else {
-        spans.add(TextSpan(text: match.fullText));
-      }
-      cursor = match.end;
-    }
-
-    if (cursor < text.length) {
-      spans.add(TextSpan(text: text.substring(cursor)));
-    }
-
-    return TextSpan(children: spans);
-  }
-
-  TokenRule? _ruleFor(TokenMatch match, TokenEditingController controller) {
-    try {
-      return controller.lexer.rules.firstWhere((r) => r.id == match.ruleId);
-    } catch (_) {
-      return null;
-    }
   }
 }

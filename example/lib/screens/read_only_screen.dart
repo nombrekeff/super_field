@@ -133,7 +133,9 @@ class _CombinedFieldState extends State<_CombinedField> {
         border: OutlineInputBorder(),
         hintText: 'Edit me…',
         labelText: 'Combined field',
+        isDense: false,
       ),
+      style: const TextStyle(height: 1.5),
       maxLines: 3,
       onChanged: (_) => setState(() {}),
     );

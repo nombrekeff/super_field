@@ -33,35 +33,65 @@ class MentionScreen extends StatefulWidget {
 class _MentionScreenState extends State<MentionScreen> {
   late final TokenEditingController _controller;
   late final TokenEditingController _singleController;
-  AutocompleteState _autocomplete = AutocompleteState.inactive;
-  AutocompleteState _singleAutocomplete = AutocompleteState.inactive;
 
   @override
   void initState() {
     super.initState();
     _controller = TokenEditingController(
       lexer: const TokenLexer(rules: [MentionRule()]),
-      autocompleteTriggers: [
-        const AutocompleteTrigger(
-          triggerId: 'mention_search',
-          activationMatcher: StartsWithMatcher('@'),
+      autocomplete: AutocompleteConfig(
+        triggers: [
+          const AutocompleteTrigger(
+            triggerId: 'mention_search',
+            activationMatcher: StartsWithMatcher('@'),
+          ),
+        ],
+        onGetSuggestions: (item) {
+          final query = (item.query ?? '').toLowerCase();
+          return _users.where((u) => u['name']!.toLowerCase().contains(query)).toList();
+        },
+        suggestionItemBuilder: (context, user) => ListTile(
+          dense: true,
+          leading: CircleAvatar(
+            radius: 14,
+            backgroundColor: Colors.teal.shade200,
+            child: Text(
+              user['name']![0],
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+          title: Text(user['name']!),
         ),
-      ],
-      onAutocompleteChange: (state) {
-        setState(() => _autocomplete = state);
-      },
+        onSelect: (value) => _insertMention(value, _controller),
+      ),
     );
     _singleController = TokenEditingController(
       lexer: const TokenLexer(rules: [MentionRule()]),
-      autocompleteTriggers: [
-        const AutocompleteTrigger(
-          triggerId: 'mention_search_single',
-          activationMatcher: StartsWithMatcher('@'),
+      autocomplete: AutocompleteConfig(
+        triggers: [
+          const AutocompleteTrigger(
+            triggerId: 'mention_search_single',
+            activationMatcher: StartsWithMatcher('@'),
+          ),
+        ],
+        onGetSuggestions: (item) {
+          final query = (item.query ?? '').toLowerCase();
+          return _users.where((u) => u['name']!.toLowerCase().contains(query)).toList();
+        },
+        suggestionItemBuilder: (context, user) => ListTile(
+          dense: true,
+          leading: CircleAvatar(
+            radius: 14,
+            backgroundColor: Colors.teal.shade200,
+            child: Text(
+              user['name']![0],
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+          title: Text(user['name']!),
         ),
-      ],
-      onAutocompleteChange: (state) {
-        setState(() => _singleAutocomplete = state);
-      },
+        onSelect: (value) => _insertMention(value, _singleController),
+      ),
     );
   }
 
@@ -72,34 +102,10 @@ class _MentionScreenState extends State<MentionScreen> {
     super.dispose();
   }
 
-  List<Map<String, String>> get _suggestions {
-    if (!_autocomplete.isActive) return [];
-    final query = (_autocomplete.query ?? '').toLowerCase();
-    return _users
-        .where((u) => u['name']!.toLowerCase().contains(query))
-        .toList();
-  }
-
-  List<Map<String, String>> get _singleSuggestions {
-    if (!_singleAutocomplete.isActive) return [];
-    final query = (_singleAutocomplete.query ?? '').toLowerCase();
-    return _users
-        .where((u) => u['name']!.toLowerCase().contains(query))
-        .toList();
-  }
-
-  void _insertMention(Map<String, String> user) {
-    final bounds = _autocomplete.matchBounds;
+  void _insertMention(dynamic user, TokenEditingController controller) {
+    final bounds = controller.autocompleteState.matchBounds;
     if (bounds == null) return;
-    _controller.replaceMatch(bounds, '<@${user['id']}|${user['name']}> ');
-    setState(() => _autocomplete = AutocompleteState.inactive);
-  }
-
-  void _insertSingleMention(Map<String, String> user) {
-    final bounds = _singleAutocomplete.matchBounds;
-    if (bounds == null) return;
-    _singleController.replaceMatch(bounds, '<@${user['id']}|${user['name']}>');
-    setState(() => _singleAutocomplete = AutocompleteState.inactive);
+    controller.replaceMatch(bounds, '<@${user['id']}|${user['name']}> ');
   }
 
   @override
@@ -113,8 +119,7 @@ class _MentionScreenState extends State<MentionScreen> {
             children: [
               const SectionHeader(
                 title: 'Mention Tokens',
-                description:
-                    'Type @ followed by a name to trigger autocomplete. '
+                description: 'Type @ followed by a name to trigger autocomplete. '
                     'Mentions use the hidden markup syntax <@id|Label> '
                     'and render as chips. A single backspace deletes the '
                     'entire chip (atomic deletion).',
@@ -129,13 +134,6 @@ class _MentionScreenState extends State<MentionScreen> {
                 ),
                 onChanged: (_) => setState(() {}),
               ),
-              if (_autocomplete.isActive && _suggestions.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                _SuggestionList(
-                  suggestions: _suggestions,
-                  onSelect: _insertMention,
-                ),
-              ],
               const SizedBox(height: 16),
               OutputCard(
                 label: 'Raw text (controller.text)',
@@ -157,8 +155,7 @@ class _MentionScreenState extends State<MentionScreen> {
               const SizedBox(height: 24),
               const SectionHeader(
                 title: 'Single Mention Field',
-                description:
-                    'This field accepts only one mention token. Try typing @ '
+                description: 'This field accepts only one mention token. Try typing @ '
                     'and selecting a user. Adding regular text or multiple '
                     'mentions is blocked by an input formatter.',
               ),
@@ -178,14 +175,6 @@ class _MentionScreenState extends State<MentionScreen> {
                 ),
                 onChanged: (_) => setState(() {}),
               ),
-              if (_singleAutocomplete.isActive &&
-                  _singleSuggestions.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                _SuggestionList(
-                  suggestions: _singleSuggestions,
-                  onSelect: _insertSingleMention,
-                ),
-              ],
               const SizedBox(height: 8),
               OutputCard(
                 label: 'Single mention plain text',

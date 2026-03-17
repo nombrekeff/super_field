@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:super_field/src/controller/autocomplete_config.dart';
 
 import '../lexer/token_lexer.dart';
 import '../lexer/token_match.dart';
@@ -17,8 +19,7 @@ class TokenEditingController extends TextEditingController {
   TokenEditingController({
     required this.lexer,
     super.text,
-    this.autocompleteTriggers = const [],
-    this.onAutocompleteChange,
+    this.autocomplete = AutocompleteConfig.defaultConfig,
   }) {
     _ast = lexer.parse(text);
   }
@@ -27,10 +28,7 @@ class TokenEditingController extends TextEditingController {
   final TokenLexer lexer;
 
   /// Optional autocomplete triggers evaluated after every text change.
-  final List<AutocompleteTrigger> autocompleteTriggers;
-
-  /// Callback invoked whenever the [AutocompleteState] changes.
-  final ValueChanged<AutocompleteState>? onAutocompleteChange;
+  final AutocompleteConfig autocomplete;
 
   List<TokenMatch> _ast = const [];
   AutocompleteState _autocompleteState = AutocompleteState.inactive;
@@ -114,9 +112,7 @@ class TokenEditingController extends TextEditingController {
     }
 
     List<InlineSpan> finalSpans = spans;
-    if (withComposing &&
-        textValue.isComposingRangeValid &&
-        !textValue.composing.isCollapsed) {
+    if (withComposing && textValue.isComposingRangeValid && !textValue.composing.isCollapsed) {
       finalSpans = _applyComposingToSpans(
         spans,
         textValue.composing,
@@ -142,9 +138,7 @@ class TokenEditingController extends TextEditingController {
       final spanEnd = spanStart + spanLength;
       offset = spanEnd;
 
-      if (spanLength == 0 ||
-          composing.end <= spanStart ||
-          composing.start >= spanEnd) {
+      if (spanLength == 0 || composing.end <= spanStart || composing.start >= spanEnd) {
         result.add(span);
         continue;
       }
@@ -204,7 +198,7 @@ class TokenEditingController extends TextEditingController {
     if (sanitized.isCollapsed) {
       _updateAutocompleteState(newValue.text, sanitized.extentOffset);
     } else {
-      _setAutocompleteState(AutocompleteState.inactive);
+      setAutocompleteState(AutocompleteState.inactive);
     }
   }
 
@@ -286,30 +280,28 @@ class TokenEditingController extends TextEditingController {
   // ---------------------------------------------------------------------------
 
   void _updateAutocompleteState(String text, int cursorOffset) {
-    if (autocompleteTriggers.isEmpty) {
-      _setAutocompleteState(AutocompleteState.inactive);
+    if (autocomplete.triggers.isEmpty) {
+      setAutocompleteState(AutocompleteState.inactive);
       return;
     }
 
     // Extract the word segment ending at the cursor position.
-    final before = cursorOffset >= 0 && cursorOffset <= text.length
-        ? text.substring(0, cursorOffset)
-        : '';
+    final before =
+        cursorOffset >= 0 && cursorOffset <= text.length ? text.substring(0, cursorOffset) : '';
 
     // Find the last word (no whitespace) ending at the cursor.
     final lastWordMatch = RegExp(r'\S+$').firstMatch(before);
     if (lastWordMatch == null) {
-      _setAutocompleteState(AutocompleteState.inactive);
+      setAutocompleteState(AutocompleteState.inactive);
       return;
     }
 
     final word = lastWordMatch.group(0)!;
     final wordStart = lastWordMatch.start;
 
-    for (final trigger in autocompleteTriggers) {
-      final triggerMatches = trigger.activationMatcher
-          .findMatches(word, trigger.triggerId)
-          .toList();
+    for (final trigger in autocomplete.triggers) {
+      final triggerMatches =
+          trigger.activationMatcher.findMatches(word, trigger.triggerId).toList();
 
       if (triggerMatches.isNotEmpty) {
         final m = triggerMatches.first;
@@ -328,20 +320,20 @@ class TokenEditingController extends TextEditingController {
               ruleId: trigger.triggerId,
             ),
           );
-          _setAutocompleteState(state);
+          setAutocompleteState(state);
           return;
         }
       }
     }
 
-    _setAutocompleteState(AutocompleteState.inactive);
+    setAutocompleteState(AutocompleteState.inactive);
   }
 
-  void _setAutocompleteState(AutocompleteState state) {
-    if (_autocompleteState != state) {
+  @internal
+  void setAutocompleteState(AutocompleteState state) {
       _autocompleteState = state;
-      onAutocompleteChange?.call(state);
-    }
+      autocomplete.onChange?.call(state);
+      notifyListeners();
   }
 
   // ---------------------------------------------------------------------------
@@ -383,9 +375,10 @@ class TokenEditingController extends TextEditingController {
   void replaceMatch(TokenMatch match, String replacement) {
     final newText = text.replaceRange(match.start, match.end, replacement);
     final newOffset = match.start + replacement.length;
+
     value = TextEditingValue(
-      text: newText,
-      selection: TextSelection.collapsed(offset: newOffset),
-    );
+        text: newText,
+        selection: TextSelection.collapsed(offset: newOffset),
+        composing: TextRange.empty);
   }
 }
