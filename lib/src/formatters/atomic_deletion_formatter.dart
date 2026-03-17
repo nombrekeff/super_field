@@ -33,6 +33,7 @@ class AtomicDeletionFormatter extends TokenInputFormatter {
         oldAst.where((m) => _isAtomic(m)).toList(growable: false);
 
     final deletedRange = _findDeletedRange(oldValue.text, newValue.text);
+    
     if (deletedRange == null) return newValue;
     final deletedStart = deletedRange.$1;
     final deletedEnd = deletedRange.$2;
